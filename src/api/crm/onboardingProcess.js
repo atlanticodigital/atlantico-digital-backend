@@ -1,4 +1,3 @@
-const env = require('../../.env')
 const axios = require('axios')
 
 const usersCycle = require('../users/users')
@@ -8,7 +7,7 @@ const profileAccess = require('../common/profileAccess')
 
 const movidesk = async (data) => {
 
-    return axios.post(`https://api.movidesk.com/public/v1/persons?token=${env.moviDeskApiToken}`,{
+    return axios.post(`https://api.movidesk.com/public/v1/persons?token=${process.env.MOVIDESK_TOKEN}`,{
         isActive: true,
         personType: 2,
         profileType: 2,
@@ -18,7 +17,7 @@ const movidesk = async (data) => {
     })
     .then(response => {
 
-        return axios.post(`https://api.movidesk.com/public/v1/persons?token=${env.moviDeskApiToken}`,{
+        return axios.post(`https://api.movidesk.com/public/v1/persons?token=${process.env.MOVIDESK_TOKEN}`,{
             isActive: true,
             personType: 1,
             profileType: 2,
@@ -50,8 +49,8 @@ const runrunit = async (data) => {
 
     const headers = {
         'Content-Type': 'application/json',
-        'App-Key': env.runRunItApiToken,
-        'User-Token': env.runRunItUserToken,
+        'App-Key': process.env.RUNRUNIT_TOKEN,
+        'User-Token': process.env.RUNRUNIT_USER_TOKEN,
     }
 
     return axios.post(`https://runrun.it/api/v1.0/clients`,{
@@ -101,8 +100,8 @@ const iugu = async (data) => {
 
     const headers = {
         'Content-Type': 'application/json',
-        'App-Key': env.runRunItApiToken,
-        'User-Token': env.runRunItUserToken,
+        'App-Key': process.env.RUNRUNIT_TOKEN,
+        'User-Token': process.env.RUNRUNIT_USER_TOKEN,
     }
 
     return axios.post(`https://api.iugu.com/v1/customers`,{
@@ -156,16 +155,16 @@ module.exports = async (res, deal, person, organization, products) => {
 
     // Person data
     const { name, first_name, phone, email } = person.data.data
-    const login = person.data.data[env.pipeDriveLoginKey]
-    const birthday = person.data.data[env.pipeDriveBirthDay]
-    const profile = person.data.data[env.pipeDriveProfileKey] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
+    const login = person.data.data[process.env.PIPEDRIVE_LOGIN_KEY]
+    const birthday = person.data.data[process.env.PIPEDRIVE_BIRTHDAY_KEY]
+    const profile = person.data.data[process.env.PIPEDRIVE_PROFILE_KEY] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
 
     // Organization data
     const organizationName = organization.data.data["name"] //Client name
     const { address_postal_code, address_street_number } = organization.data.data
-    const reference = organization.data.data[env.pipeDriveClientKey] //Client major reference
-    const document = organization.data.data[env.pipeDriveDocumentKey] //Client CNPJ
-    const firstDueDate = organization.data.data[env.pipeDriveFirstDueDateKey] //Due date
+    const reference = organization.data.data[process.env.PIPEDRIVE_CLIENT_KEY] //Client major reference
+    const document = organization.data.data[process.env.PIPEDRIVE_DOCUMENT_KEY] //Client CNPJ
+    const firstDueDate = organization.data.data[process.env.PIPEDRIVE_DUEDATE_KEY] //Due date
 
     //Document validation
     if(!document||!cpfCnpj(document)){

@@ -1,4 +1,3 @@
-const env = require('../../.env')
 const axios = require('axios')
 
 const usersCycle = require('../users/users')
@@ -10,17 +9,17 @@ module.exports = (req, res, next) => {
 
     if(action === "updated" && object === "person") {
 
-        axios.get(`https://api.pipedrive.com/v1/persons/${id}?api_token=${env.pipeDriveApiToken}`)
+        axios.get(`https://api.pipedrive.com/v1/persons/${id}?api_token=${process.env.PIPEDRIVE_TOKEN}`)
             .then(response => {
                 const { name, first_name, phone, email } = response.data.data
-                const login = response.data.data[env.pipeDriveLoginKey]
-                const connections = response.data.data[env.pipeDriveConnectionKey]
-                const dominioUserPass = response.data.data[env.pipeDriveDominioAtendimentoKey]
-                const contaAzulUserPass = response.data.data[env.pipeDriveContaAzulKey]
-                const profile = response.data.data[env.pipeDriveProfileKey] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
+                const login = response.data.data[process.env.PIPEDRIVE_LOGIN_KEY]
+                const connections = response.data.data[process.env.PIPEDRIVE_CONNECTION_KEY]
+                const dominioUserPass = response.data.data[process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]
+                const contaAzulUserPass = response.data.data[process.env.PIPEDRIVE_CONTA_AZUL_KEY]
+                const profile = response.data.data[process.env.PIPEDRIVE_PROFILE_KEY] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
 
                 axios.all([
-                    axios.get(`https://api.pipedrive.com/v1/persons/search?term=${login}&api_token=${env.pipeDriveApiToken}`),
+                    axios.get(`https://api.pipedrive.com/v1/persons/search?term=${login}&api_token=${process.env.PIPEDRIVE_TOKEN}`),
                 ])
                 .then(axios.spread((pipedrive) => {
 
@@ -30,14 +29,14 @@ module.exports = (req, res, next) => {
                     persons.forEach(person => {
                         if(person.id != id) {
                             //Chamada axios para enviar alterações
-                            axios.put(`https://api.pipedrive.com/v1/persons/${person.id}?api_token=${env.pipeDriveApiToken}`, {
+                            axios.put(`https://api.pipedrive.com/v1/persons/${person.id}?api_token=${process.env.PIPEDRIVE_TOKEN}`, {
                                 name: name,
                                 email: email,
                                 phone: phone,
-                                [env.pipeDriveProfileKey]: profile,
-                                [env.pipeDriveConnectionKey]: connections,
-                                [env.pipeDriveContaAzulKey]: contaAzulUserPass,
-                                [env.pipeDriveDominioAtendimentoKey]: dominioUserPass
+                                [process.env.PIPEDRIVE_PROFILE_KEY]: profile,
+                                [process.env.PIPEDRIVE_CONNECTION_KEY]: connections,
+                                [process.env.PIPEDRIVE_CONTA_AZUL_KEY]: contaAzulUserPass,
+                                [process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]: dominioUserPass
                             })
                             .then((response) => {
                                 console.log(response.data)

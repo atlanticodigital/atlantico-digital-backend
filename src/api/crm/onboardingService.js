@@ -1,4 +1,3 @@
-const env = require('../../.env')
 const axios = require('axios')
 
 const onboardingProcess = require('./onboardingProcess')
@@ -10,7 +9,7 @@ module.exports = (req, res, next) => {
 
     if(action === "updated" && object === "deal") {
 
-        axios.get(`https://api.pipedrive.com/v1/deals/${id}?api_token=${env.pipeDriveApiToken}`)
+        axios.get(`https://api.pipedrive.com/v1/deals/${id}?api_token=${process.env.PIPEDRIVE_TOKEN}`)
             .then(response => {
                 const { status, value, person_id, org_id } = response.data.data      
 
@@ -19,9 +18,9 @@ module.exports = (req, res, next) => {
                     if(org_id.value&&person_id.value){
 
                         axios.all([
-                            axios.get(`https://api.pipedrive.com/v1/persons/${person_id.value}?api_token=${env.pipeDriveApiToken}`),
-                            axios.get(`https://api.pipedrive.com/v1/organizations/${org_id.value}?api_token=${env.pipeDriveApiToken}`),
-                            axios.get(`https://api.pipedrive.com/v1/deals/${id}/products/?api_token=${env.pipeDriveApiToken}`),
+                            axios.get(`https://api.pipedrive.com/v1/persons/${person_id.value}?api_token=${process.env.PIPEDRIVE_TOKEN}`),
+                            axios.get(`https://api.pipedrive.com/v1/organizations/${org_id.value}?api_token=${process.env.PIPEDRIVE_TOKEN}`),
+                            axios.get(`https://api.pipedrive.com/v1/deals/${id}/products/?api_token=${process.env.PIPEDRIVE_TOKEN}`),
                         ])
                         .then(axios.spread((response1, response2, response3) => {
                             

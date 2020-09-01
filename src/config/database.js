@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
-const env = require('../.env')
 
 mongoose.Promise = global.Promise
 
-module.exports = mongoose.connect(env.dbURI, { useNewUrlParser:true, useUnifiedTopology:true, useCreateIndex: true, useFindAndModify: false })
+module.exports = mongoose.connect(process.env.DB_URI, { useNewUrlParser:true, useUnifiedTopology:true, useCreateIndex: true, useFindAndModify: false })

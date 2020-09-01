@@ -2,7 +2,6 @@ const _ = require('lodash')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const User = require('./users')
-const env = require('../../.env')
 
 const sendErrorsFromDB = (res, dbErrors) => {
     const errors = []
@@ -19,7 +18,7 @@ const login = (req, res, next) => {
             return sendErrorsFromDB(res, err)
         } else if (user && bcrypt.compareSync(password, user.password)) {
 
-            const token = jwt.sign(user.toJSON(), env.authSecret, {
+            const token = jwt.sign(user.toJSON(), process.env.AUTH_SECRET, {
                 expiresIn: "1 day"
             })
 
@@ -36,7 +35,7 @@ const login = (req, res, next) => {
 const validateToken = (req, res, next) => {
     const token = req.body.token || ''
 
-    jwt.verify(token, env.authSecret, function(err, decoded) {
+    jwt.verify(token, process.env.AUTH_SECRET, function(err, decoded) {
 
         return res.status(200).send({valid: !err})
 
