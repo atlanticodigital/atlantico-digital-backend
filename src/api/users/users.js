@@ -1,6 +1,11 @@
 const restful = require('node-restful')
 const mongoose = restful.mongoose
 
+const forgot = new mongoose.Schema({
+    token: String,
+    expires_at: { type: Date, default: Date.now() + 86400000 }
+})
+
 const users = new mongoose.Schema({
     name: { type: String, required: [true, 'Informe o nome do usuário!'] },
     nickname: { type: String, required: false },
@@ -34,6 +39,7 @@ const users = new mongoose.Schema({
     },
     created_at: { type: Date, default: Date.now },
     client: [ Number ],
+    forgot_request: forgot,
 })
 
 module.exports = restful.model('Users', users)

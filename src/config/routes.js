@@ -17,6 +17,8 @@ module.exports = (server) => {
 
     const AuthService = require('../api/users/authService')
     openApi.post('/', AuthService.login)
+    openApi.post('/forgot', AuthService.forgot)
+    openApi.post('/recover', AuthService.recover)
     openApi.post('/validateToken', AuthService.validateToken)
 
     const OnBoardingService = require('../api/crm/onboardingService')
