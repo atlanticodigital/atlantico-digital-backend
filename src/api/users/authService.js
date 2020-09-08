@@ -2,7 +2,9 @@ const _ = require('lodash')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
-const async = require('async');
+const async = require('async')
+const email = require('../common/sendGrid')
+const LoggingModel = require('../users/logging')
 
 const User = require('./users')
 
@@ -23,6 +25,11 @@ const login = (req, res, next) => {
 
             const token = jwt.sign(user.toJSON(), process.env.AUTH_SECRET, {
                 expiresIn: "1 day"
+            })
+
+            LoggingModel.create({
+                user: user._id,
+                action: "Login"
             })
 
             res.json({ user, token, expiresIn: "1 day" })
@@ -79,16 +86,57 @@ const forgot = (req, res, next) => {
             (err, user) => {
 
                 if(err) {
-                    console.log(err)
+                    done('Token was not created.');
                 } else if (user) {
-                    done(err, token, user);
+                    LoggingModel.create({
+                        user: user._id,
+                        action: "Solicitou recuperação de senha"
+                    })
+
+                    if(!user.email.length&&!user.email[0].value){
+                        done('User has no e-mail to send notifications.')
+                    }else{
+                        let msg = [];
+
+                        user.email.forEach(email => {
+                            msg.push({
+                                to: email.value,
+                                templateId: process.env.SENDGRID_TEMPLATE_RECOVER,
+                                dynamicTemplateData: {
+                                    name: user.name,
+                                    email: email.value,
+                                    link: `https://atlantico.digital/auth/recover/${token}`
+                                }
+                            })
+                        });
+
+                        email.send(msg,true)
+                        .then(
+                            response => {
+                                if(!response){
+                                    done('E-mail notification was not sended.')
+                                }else{
+                                    done(err, token, user)
+                                }
+                            }
+                        )                        
+
+                    }
                 }
         
             })
 
           },
           function(token, user, done) {
-            return res.json({ token });
+            const sendedTo = user.email.map(email => email.value.replace(/(.{3})(.*)(?=@)/,
+                function(gp1, gp2, gp3) { 
+                    for(let i = 0; i < gp3.length; i++) { 
+                        gp2+= "*"; 
+                    } return gp2; 
+                })
+            )
+
+            return res.json({ token, sendedTo });
           }
     ], function(err) {
         return res.status(422).json({ message: err });
@@ -106,7 +154,7 @@ const recover = (req, res, next) => {
     (err, user) => {
 
         if(err) {
-            return res.status(400).json({ message: err });
+            return res.status(401).json({ message: err });
         } else if (user) {
 
             if(newPassword === verifyPassword){
@@ -129,7 +177,7 @@ const recover = (req, res, next) => {
             }
 
         } else {
-            return res.status(400).send({errors: ['Password reset token is invalid or has expired.']})
+            return res.status(401).send({errors: ['Password reset token is invalid or has expired.']})
         }
 
     })

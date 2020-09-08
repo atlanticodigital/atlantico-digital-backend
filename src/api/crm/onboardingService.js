@@ -24,7 +24,7 @@ module.exports = (req, res, next) => {
                         ])
                         .then(axios.spread((response1, response2, response3) => {
                             
-                            onboardingProcess(res, response, response1, response2, response3)
+                            onboardingProcess(id, res, response, response1, response2, response3)
                             
                         }))
                         .catch(error => {

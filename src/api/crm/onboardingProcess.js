@@ -4,6 +4,7 @@ const usersCycle = require('../users/users')
 const clientsCycle = require('../clients/clients')
 const cpfCnpj = require('../common/cpfCnpj')
 const profileAccess = require('../common/profileAccess')
+const sendGrid = require('../common/sendGrid')
 
 const movidesk = async (data) => {
 
@@ -65,7 +66,7 @@ const runrunit = async (data) => {
     .then(response => {
 
         const runrunit_id = response.data.id
-        const runrunit_projects = {}
+        const runrunit_projects = []
 
         data.dealProducts.forEach(product => {
 
@@ -150,7 +151,7 @@ const iugu = async (data) => {
 
 }
 
-module.exports = async (res, deal, person, organization, products) => {
+module.exports = async (id, res, deal, person, organization, products) => {
     let errors = []
 
     // Person data
@@ -225,6 +226,28 @@ module.exports = async (res, deal, person, organization, products) => {
 
     //Return 200 if there is any error
     if(errors.length){
+        let msg = {
+            to: ["agenciablackpearl@gmail.com"],
+            templateId: process.env.SENDGRID_TEMPLATE_ERRORS,
+            dynamicTemplateData: {
+                subject: `Falha no onboarding #${id}`,
+                title: "Falha no processo onboarding",
+                description: `Ao realizar a validação de dados para o processo onboarding do negócio #${id}, ocorreram os erros listados abaixo.`,
+                errors,
+            }
+        }
+
+        sendGrid.send(msg)
+        .then(
+            response => {
+                if(!response){
+                    console.log(`Onboarding #${id} notification error email not sended!`)
+                }else{
+                    console.log(`Onboarding #${id} notification sended!`)
+                }
+            }
+        )     
+
         return res.status(200).send({msg: ['Erro no processo onboarding.'], errors: errors})
     }
     //In case there is no error, proceed to register client and user
@@ -240,7 +263,7 @@ module.exports = async (res, deal, person, organization, products) => {
             }
         })
 
-        return res.json(dealProducts)
+        return res.json({login,name,email})
 
         const movideskSignUp = await movidesk({name, email, organizationName, reference})
     
@@ -261,7 +284,29 @@ module.exports = async (res, deal, person, organization, products) => {
         }
 
         if(errors.length){
-            return res.status(200).send({msg: ['Erro no processo onboarding.'], errors: errors})
+            let msg = {
+                to: ["agenciablackpearl@gmail.com"],
+                templateId: process.env.SENDGRID_TEMPLATE_ERRORS,
+                dynamicTemplateData: {
+                    subject: `Pendências no onboarding #${id}`,
+                    title: "Pendências no processo onboarding",
+                    description: `Ao realizar o processo onboarding do negócio #${id} em nossos sistemas, ocorreram as pendências listadas abaixo.`,
+                    errors,
+                }
+            }
+    
+            sendGrid.send(msg)
+            .then(
+                response => {
+                    if(!response){
+                        console.log(`Onboarding #${id} pendencies notification error email not sended!`)
+                    }else{
+                        console.log(`Onboarding #${id} pendencies notification sended!`)
+                    }
+                }
+            )     
+
+            return res.status(200).send({msg: ['Onboarding pendencies error.'], errors: errors})
         }
         else{
 
