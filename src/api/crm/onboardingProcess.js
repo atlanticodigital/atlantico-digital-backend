@@ -1,10 +1,12 @@
 const axios = require('axios')
+const bcrypt = require('bcrypt')
 
 const usersCycle = require('../users/users')
 const clientsCycle = require('../clients/clients')
 const cpfCnpj = require('../common/cpfCnpj')
 const profileAccess = require('../common/profileAccess')
 const sendGrid = require('../common/sendGrid')
+const generator = require('generate-password')
 
 const movidesk = async (data) => {
 
@@ -63,18 +65,18 @@ const runrunit = async (data) => {
             budgeted_hours_month: 0
         }
     }, { headers: headers })
-    .then(response => {
+    .then(async (response) => {
 
         const runrunit_id = response.data.id
         const runrunit_projects = []
 
-        data.dealProducts.forEach(product => {
+        const promises = data.dealProducts.map(async (product, index) => {
 
-            return axios.post(`https://runrun.it/api/v1.0/projects`,{
-            project: {
-                name: product.description,
-                client_id: runrunit_id
-            }
+            await axios.post(`https://runrun.it/api/v1.0/projects`,{
+                project: {
+                    name: product.description,
+                    client_id: runrunit_id
+                }
             }, { headers: headers })
             .then(response => {
 
@@ -82,13 +84,14 @@ const runrunit = async (data) => {
                 
             })
             .catch(error => {
-                return false
+                runrunit_projects.push(false)
             })
-            
+
         })
 
-        return { runrunit_id, runrunit_projects }
+        await Promise.all(promises)
 
+        return { runrunit_id, runrunit_projects }
         
     })
     .catch(error => {
@@ -99,47 +102,46 @@ const runrunit = async (data) => {
 
 const iugu = async (data) => {
 
+    let buff = new Buffer.from(process.env.IUGU_TOKEN)
+    let base64data = buff.toString('base64')
+
     const headers = {
         'Content-Type': 'application/json',
-        'App-Key': process.env.RUNRUNIT_TOKEN,
-        'User-Token': process.env.RUNRUNIT_USER_TOKEN,
+        'Authorization': `Basic ${base64data}:`
     }
-
+    
     return axios.post(`https://api.iugu.com/v1/customers`,{
-        client: {
-            email: data.email[0].value,
-            name: data.organizationName,
-            cpf_cnpj: data.document, //Only numbers
-            zip_code: data.address_postal_code,
-            number: data.address_street_number
-        }
+        email: data.email[0].value,
+        name: data.organizationName,
+        cpf_cnpj: data.document.replace(/[.-/ ]/g,''), //Only numbers
+        zip_code: data.address_postal_code,
+        number: data.address_street_number
     }, { headers: headers })
     .then(response => {
-
-        const id = response.data.id
+        
+        const iugu_id = response.data.id
 
         return axios.post(`https://api.iugu.com/v1/invoices`,{
-            project: {
-                email: data.email[0].value,
-                due_date: data.firstDueDate, //AAAA-MM-DD
-                items: data.dealProducts,
-                customer_id: id,
-                payer: {
-                    name: data.organizationName,
-                    cpf_cnpj: data.document, //Only numbers
-                    address: {
-                        zip_code: data.address_postal_code,
-                        number: data.address_street_number
-                    }
+            email: data.email[0].value,
+            due_date: data.firstDueDate, //AAAA-MM-DD
+            items: data.dealProducts,
+            customer_id: iugu_id,
+            payer: {
+                name: data.organizationName,
+                cpf_cnpj: data.document.replace(/[.-/ ]/g,''), //Only numbers
+                address: {
+                    zip_code: data.address_postal_code,
+                    number: data.address_street_number
                 }
             }
         }, { headers: headers })
         .then(response => {
 
-            return { id }
+            return { iugu_id }
             
         })
         .catch(error => {
+            console.log(error.response.data)
             return false
         })
 
@@ -158,7 +160,10 @@ module.exports = async (id, res, deal, person, organization, products) => {
     const { name, first_name, phone, email } = person.data.data
     const login = person.data.data[process.env.PIPEDRIVE_LOGIN_KEY]
     const birthday = person.data.data[process.env.PIPEDRIVE_BIRTHDAY_KEY]
-    const profile = person.data.data[process.env.PIPEDRIVE_PROFILE_KEY] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
+    const dominioUserPass = person.data.data[process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]
+    const contaAzulUserPass = person.data.data[process.env.PIPEDRIVE_CONTA_AZUL_KEY]
+    let profile = person.data.data[process.env.PIPEDRIVE_PROFILE_KEY] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
+    profile = profile ? profile.split(",") : profile
 
     // Organization data
     const organizationName = organization.data.data["name"] //Client name
@@ -166,6 +171,8 @@ module.exports = async (id, res, deal, person, organization, products) => {
     const reference = organization.data.data[process.env.PIPEDRIVE_CLIENT_KEY] //Client major reference
     const document = organization.data.data[process.env.PIPEDRIVE_DOCUMENT_KEY] //Client CNPJ
     const firstDueDate = organization.data.data[process.env.PIPEDRIVE_DUEDATE_KEY] //Due date
+    const organizationNickName = organization.data.data[process.env.PIPEDRIVE_ORGANIZATION_NICKNAME_KEY] //Organization Nickname
+    const payroll = organization.data.data[process.env.PIPEDRIVE_PAYROLL_KEY] //Payroll
 
     //Document validation
     if(!document||!cpfCnpj(document)){
@@ -255,15 +262,18 @@ module.exports = async (id, res, deal, person, organization, products) => {
         errors = []
         
         //Deal data
-        const totalProducts = deal.data.data["value"]
+        // const totalProducts = (Math.round(deal.data.data["value"] * 100) / 100).toFixed(2).replace(".","")
+
         const dealProducts = products.data.data.map((product) => { return {
             description: product.name,
             quantity: product.quantity,
-            price_cents: product.item_price,
+            price_cents: (Math.round(product.item_price * 100) / 100).toFixed(2).replace(".",""),
             }
         })
 
-        return res.json({login,name,email})
+        let runrunit_id,
+            runrunit_projects,
+            iugu_id
 
         const movideskSignUp = await movidesk({name, email, organizationName, reference})
     
@@ -275,12 +285,103 @@ module.exports = async (id, res, deal, person, organization, products) => {
     
         if(!await runrunSignUp){
             errors.push(`Não foi possível cadastrar o cliente no runrunit.`)
+        }else{
+            runrunit_id = runrunSignUp.runrunit_id
+            runrunit_projects = runrunSignUp.runrunit_projects
         }
     
-        const iuguSignUp = await runrunit({ dealProducts, organizationName, firstDueDate, email, address_postal_code, address_street_number, document })
+        const iuguSignUp = await iugu({ email, organizationName, document, address_postal_code, address_street_number, firstDueDate, dealProducts })
     
         if(!await iuguSignUp){
             errors.push(`Não foi possível cadastrar o cliente no iugu.`)
+        }else{
+            iugu_id= iuguSignUp.iugu_id
+        }
+
+        try {
+
+            //Create client
+            clientsCycle.create({
+                name: organizationName,
+                nickname: organizationNickName,
+                reference: reference,
+                document: document,
+                payroll: payroll=="116" ? true : false,
+                runrunit_id,
+                runrunit_projects,
+                iugu_id,
+            })
+
+            //Generate random password
+            const password = generator.generate({
+                length: 10,
+                numbers: true,
+                symbols: true,
+                lowercase: true,
+                uppercase: true,
+                excludeSimilarCharacters: true,
+                strict: true,
+            })
+
+            const salt = bcrypt.genSaltSync()
+            const passwordHash = bcrypt.hashSync(password, salt)
+
+            //Create user
+            usersCycle.create({
+                name,
+                nickname: first_name,
+                login,
+                password: passwordHash,
+                is_admin: false,
+                email,
+                phone,
+                passwords: {
+                    dominio: {
+                        user: (dominioUserPass) ? dominioUserPass.split(":")[0] : null,
+                        pass: (dominioUserPass) ? dominioUserPass.split(":")[1] : null,
+                    },
+                    conta_azul: {
+                        user: (contaAzulUserPass) ? contaAzulUserPass.split(":")[0] : null,
+                        pass: (contaAzulUserPass) ? contaAzulUserPass.split(":")[1] : null,
+                    },
+                },
+                agreed: true,
+                status: true,
+                profile: profile.map(item => { return profileAccess(item) }),
+                client: [ reference ]
+            })
+
+            let msg = [];
+
+            email.forEach(email => {
+                msg.push({
+                    to: email.value,
+                    templateId: process.env.SENDGRID_TEMPLATE_WELCOME,
+                    dynamicTemplateData: {
+                        subject: `Bem-vindo a sua conta segura`,
+                        name: first_name,
+                        login,
+                        password,
+                        email: email.value,
+                    }
+                })
+            });
+    
+            sendGrid.send(msg,true)
+            .then(
+                response => {
+                    if(!response){
+                        console.log(`Onboarding #${id} welcome notification error, email not sended!`)
+                    }else{
+                        console.log(`Onboarding #${id} welcome notification sended!`)
+                    }
+                }
+            )     
+            
+            return res.json("OK")
+
+        } catch (error) {
+            errors.push(`Não foi possível cadastrar o cliente no atlântico.digital.`)
         }
 
         if(errors.length){
@@ -308,24 +409,6 @@ module.exports = async (id, res, deal, person, organization, products) => {
 
             return res.status(200).send({msg: ['Onboarding pendencies error.'], errors: errors})
         }
-        else{
-
-            //Cadastra no AD
-            // var ad = new clientsCycle({
-            //     name: organizationName,
-            //     nickname: { type: String, required: false },
-            //     reference: reference,
-            //     document: document,
-            //     payroll: false,
-            //     runrunit_id: Number,
-            //     runrunit_projects: [ Number ],
-            //     iugu_id: String,
-            //     created_at: { type: Date, default: Date.now },
-            // })
-
-            return res.json("OK")
-        
-        }        
 
     }
 

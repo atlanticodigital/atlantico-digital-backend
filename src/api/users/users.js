@@ -27,15 +27,8 @@ const users = new mongoose.Schema({
     agreed: { type: Boolean, default: true },
     status: { type: Boolean, default: true },
     profile: { 
-        type: String,
-        required: [true, 'Informe o perfil do usuário!'],
-        uppercase: true,
-        enum: [
-            'ADMIN',
-            'FINANC',
-            'HR',
-            'FTAX'
-        ]
+        type: Array,
+        required: [true, 'Informe o perfil do usuário!']
     },
     created_at: { type: Date, default: Date.now },
     client: [ Number ],

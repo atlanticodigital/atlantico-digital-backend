@@ -7,6 +7,7 @@ const email = require('../common/sendGrid')
 const LoggingModel = require('../users/logging')
 
 const User = require('./users')
+const Client = require('../clients/clients')
 
 const sendErrorsFromDB = (res, dbErrors) => {
     const errors = []
@@ -18,9 +19,11 @@ const login = (req, res, next) => {
     const login = req.body.login || ''
     const password = req.body.password || ''
 
-    User.findOne({login}, (err, user) => {
+    User.findOne({login}, async (err, user) => {
         if(err) {
             return sendErrorsFromDB(res, err)
+        } else if (!user.status) {
+            return res.status(401).send({errors: ['Blocked user']})
         } else if (user && bcrypt.compareSync(password, user.password)) {
 
             const token = jwt.sign(user.toJSON(), process.env.AUTH_SECRET, {
@@ -32,7 +35,19 @@ const login = (req, res, next) => {
                 action: "Login"
             })
 
-            res.json({ user, token, expiresIn: "1 day" })
+            let primary = null
+
+            if(user.client[0]){
+                await Client.findOne({reference: user.client[0]}, (err, client) => {
+                    if(client){
+                        primary = client
+                    }
+                })
+            }else{
+                return res.status(422).send({errors: ['User has no linked clients']})
+            }
+
+            res.json({ user, primary, token, expiresIn: "1 day" })
 
         } else {
 
