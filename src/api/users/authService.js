@@ -19,6 +19,10 @@ const login = (req, res, next) => {
     const login = req.body.login || ''
     const password = req.body.password || ''
 
+    if(!login||!password){
+        return res.status(400).send({errors: ['You have entered the wrong username or password']})
+    }
+
     User.findOne({login}, async (err, user) => {
         if(err) {
             return sendErrorsFromDB(res, err)
@@ -165,7 +169,7 @@ const recover = (req, res, next) => {
     const newPassword = req.body.newPassword || ''
     const verifyPassword = req.body.verifyPassword || ''
 
-    User.findOne({'forgot_request.token': req.body.token, 'forgot_request.expires_at': {$gt: Date.now()}},
+    User.findOne({'forgot_request.token': req.body.token, 'forgot_request.expires_at': {$gt: Date.now()}, 'forgot_request.recovered_at': null},
     (err, user) => {
 
         if(err) {
@@ -184,6 +188,7 @@ const recover = (req, res, next) => {
                 const passwordHash = bcrypt.hashSync(newPassword, salt)
                 
                 user.password = passwordHash
+                user.forgot_request.recovered_at = Date.now()
                 user.save()
 
                 return res.status(200).json({ message: 'Password reset successfully.' });
