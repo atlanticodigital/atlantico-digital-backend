@@ -11,6 +11,9 @@ module.exports = (server) => {
     const UsersCycle = require('../api/users/usersService')
     UsersCycle.register(protectedApi, '/users')
 
+    const ClientsCycle = require('../api/clients/clientsService')
+    ClientsCycle.register(protectedApi, '/clients')
+
     // Open Api
     const openApi = express.Router()
     server.use('/oauth', openApi)
