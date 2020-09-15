@@ -47,7 +47,11 @@ const login = (req, res, next) => {
                         primary = client
                     }
                 })
-            }else{
+            } else {
+                return res.status(422).send({errors: ['User has no linked clients']})
+            }
+
+            if(!primary){
                 return res.status(422).send({errors: ['User has no linked clients']})
             }
 
