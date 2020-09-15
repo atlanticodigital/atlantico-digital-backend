@@ -10,7 +10,7 @@ const userUpdateService = require('./userUpdateService')
 usersCycle.methods(['get', 'post', 'put', 'delete'])
 usersCycle.updateOptions({ new: true, runValidators: true })
 usersCycle.after('post', errorHandler).after('put', errorHandler).after('put', userUpdateService)
-usersCycle.before('post', loginPassHandler)
+usersCycle.before('post', loginPassHandler).before('put', loginPassHandler)
 
 usersCycle.route('clients', {
     detail: true,

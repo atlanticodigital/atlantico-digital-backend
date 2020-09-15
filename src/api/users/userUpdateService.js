@@ -1,25 +1,9 @@
 const axios = require('axios')
-const bcrypt = require('bcrypt')
 
-const passwordRegex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20})/
+const User = require('./users')
 
 module.exports = async (req, res, next) => {
     const response = res.locals.bundle
-
-    const password = req.body.password || null
-
-    if(password){
-        if(!password.match(passwordRegex)) {
-            return res.status(400).send({errors: [
-                "Password must be 6-20 characters and numbers. Must have symbols (@#$%) one uppercase letter and one lowercase letter."
-            ]})
-        }
-    
-        const salt = bcrypt.genSaltSync()
-        const passwordHash = bcrypt.hashSync(password, salt)
-        
-        req.body.password = passwordHash
-    }
     
     await axios.get(`https://api.pipedrive.com/v1/persons/search?term=${response.login}&api_token=${process.env.PIPEDRIVE_TOKEN}`)
     .then(async (pipedrive) => {
@@ -33,8 +17,22 @@ module.exports = async (req, res, next) => {
                 email: response.email,
                 phone: response.phone
             })
-            .then((response) => {
-                console.log(response.data.data)
+            .then(async (person) => {
+                console.log(person.data.data)
+
+                await User.findOneAndUpdate({_id: response._id}, {
+                    nickname: person.data.data.first_name
+                },
+                (err, user) => {
+
+                    if(err) {
+                        console.log(err)
+                    } else if (user) {
+                        console.log(user)
+                    }
+            
+                })
+
             })
             .catch(error => {
                 console.log(error)
