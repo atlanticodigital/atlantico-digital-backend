@@ -275,7 +275,7 @@ module.exports = async (id, res, deal, person, organization, products) => {
             runrunit_projects,
             iugu_id
 
-        const movideskSignUp = await movidesk({name, email, organizationName, reference})
+        const movideskSignUp = await movidesk({name, email, login, organizationName, reference})
     
         if(!await movideskSignUp){
             errors.push(`Não foi possível cadastrar o cliente no movidesk.`)
