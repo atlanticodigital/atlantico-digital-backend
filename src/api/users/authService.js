@@ -52,7 +52,7 @@ const login = (req, res, next) => {
             }
 
             if(!primary){
-                return res.status(422).send({errors: ['User has no linked clients']})
+                return res.status(422).send({errors: ['None clients found for this user']})
             }
 
             res.json({ user, primary, token, expiresIn: "1 day" })

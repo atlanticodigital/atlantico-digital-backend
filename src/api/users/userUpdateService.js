@@ -18,7 +18,7 @@ module.exports = async (req, res, next) => {
                 phone: response.phone
             })
             .then(async (person) => {
-                console.log(person.data.data)
+                // console.log(person.data.data)
 
                 await User.findOneAndUpdate({_id: response._id}, {
                     nickname: person.data.data.first_name
@@ -50,7 +50,7 @@ module.exports = async (req, res, next) => {
         emails: response.email.map((email) => { return { emailType: 'Profissional', email: email.value, isDefault: email.primary } })
     })
     .then(async (response) => {
-        console.log(response)
+        // console.log(response)
     })
     .catch(error => {
         console.log(error)
