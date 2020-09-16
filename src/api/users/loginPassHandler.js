@@ -1,6 +1,6 @@
 const _ = require('lodash')
 const bcrypt = require('bcrypt')
-const usersCycle = require('../users/users')
+const usersCycle = require('./users')
 
 // const emailRegex = /\S+@\S+\.\S+/
 const passwordRegex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20})/
