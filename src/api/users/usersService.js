@@ -5,6 +5,7 @@ const loginPassHandler = require('./loginPassHandler')
 const changePasswordService = require('./changePasswordService')
 const usersClientsService = require('./userClientsService')
 const userUpdateService = require('./userUpdateService')
+const newTicketService = require('../helpdesk/newTicketService')
 
 usersCycle.methods(['get', 'post', 'put', 'delete'])
 usersCycle.updateOptions({ new: true, runValidators: true })
@@ -19,6 +20,11 @@ usersCycle.route('clients', {
 usersCycle.route('changePassword', {
     detail: true,
     handler: changePasswordService
+})
+
+usersCycle.route('tickets.post', {
+    detail: true,
+    handler: newTicketService
 })
 
 module.exports = usersCycle
