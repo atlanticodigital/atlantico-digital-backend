@@ -1,5 +1,3 @@
-const _ = require('lodash')
-
 const usersCycle = require('./users')
 
 const errorHandler = require('../common/errorHandler')
