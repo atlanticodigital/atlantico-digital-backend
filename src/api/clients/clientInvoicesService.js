@@ -3,6 +3,8 @@ const Client = require('./clients')
 
 const list = async (req, res, next) => {
     const id = req.params.id
+    const limit = req.query.limit || 12
+    const start = req.query.start || 0
 
     await Client.findOne({_id: id}, async (err, client) => {
         if(err) {
@@ -14,7 +16,8 @@ const list = async (req, res, next) => {
             }
 
             await axios.get(`https://api.iugu.com/v1/invoices`, { params: {
-                limit: 12,
+                limit,
+                start,
                 customer_id: client.iugu_id,
                 api_token: process.env.IUGU_TOKEN
             }})
