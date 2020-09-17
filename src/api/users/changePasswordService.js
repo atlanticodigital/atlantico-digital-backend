@@ -27,7 +27,7 @@ module.exports = (req, res, next) => {
             if(newPassword === verifyPassword){
 
                 if(!newPassword.match(passwordRegex)) {
-                    return res.status(400).send({errors: [
+                    return res.status(406).send({errors: [
                         "Password must be 6-20 characters and numbers. Must have symbols (@#$%) one uppercase letter and one lowercase letter."
                     ]})
                 }
@@ -46,7 +46,7 @@ module.exports = (req, res, next) => {
 
         } else {
 
-            return res.status(400).send({errors: ['You have entered the wrong password']})
+            return res.status(401).send({errors: ['You have entered the wrong password']})
 
         }
     })
