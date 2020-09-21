@@ -1,6 +1,7 @@
 const axios = require('axios')
 
 const User = require('../users/users')
+const LoggingModel = require('../users/logging')
 
 module.exports = async (req, res, next) => {
     const id = req.params.id
@@ -48,6 +49,11 @@ module.exports = async (req, res, next) => {
             .then(response => {
 
                 if(response.data.id){
+                    LoggingModel.create({
+                        user: user._id,
+                        action: `Criou um ticket de atendimento: #${response.data.id}`
+                    })
+
                     return res.status(200).json({ id: response.data.id, message: 'Ticket created!' });
                 }else{
                     return res.status(400).send({errors: ['Could not create a new ticket!']})
