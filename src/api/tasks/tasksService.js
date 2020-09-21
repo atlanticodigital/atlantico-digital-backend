@@ -88,6 +88,26 @@ const list = async (req, res, next) => {
 
 }
 
+const show = (req, res, next) => {
+    const id = req.query.id || null
+
+    if(!id){
+        return res.status(422).send({errors: ['Task id not provided.']})
+    }
+    
+    axios.get(`https://runrun.it/api/v1.0/tasks/${id}`, { headers })
+    .then(response => {
+
+        return res.status(200).send( response.data );
+
+    })
+    .catch(error => {
+        console.log(error)
+        return res.status(400).send({errors: ['Could not list task info!']})
+    })
+
+}
+
 const query = (req, res, next) => {
     const id = req.query.id || null
 
@@ -170,4 +190,4 @@ const downloadZip = (req, res, next) => {
 
 }
 
-module.exports = { list, query, download, downloadZip }
+module.exports = { list, show, query, download, downloadZip }

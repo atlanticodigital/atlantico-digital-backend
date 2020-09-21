@@ -20,8 +20,7 @@ clientsCycle.route('tasks.get', {
     handler: tasksService.list
 })
 
+clientsCycle.route('task.get', tasksService.show)
 clientsCycle.route('taskDocuments.get', tasksService.query)
-
-
 
 module.exports = clientsCycle
