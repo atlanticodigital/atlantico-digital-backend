@@ -13,29 +13,13 @@ usersCycle.updateOptions({ new: true, runValidators: true })
 usersCycle.after('post', errorHandler).after('put', errorHandler).after('put', userUpdateService)
 usersCycle.before('post', loginPassHandler)
 
-usersCycle.route('clients', {
-    detail: true,
-    handler: usersClientsService
-})
+usersCycle.route('clients', { detail: true, handler: usersClientsService.clients })
 
-usersCycle.route('changePassword', {
-    detail: true,
-    handler: changePasswordService
-})
+usersCycle.route('changePassword', { detail: true, handler: changePasswordService })
 
-usersCycle.route('tickets.post', {
-    detail: true,
-    handler: newTicketService
-})
+usersCycle.route('tickets.post', { detail: true, handler: newTicketService })
 
-usersCycle.route('downloadTaskDocument.get', {
-    detail: true,
-    handler: tasksService.download
-})
-
-usersCycle.route('downloadTaskZipDocuments.get', {
-    detail: true,
-    handler: tasksService.downloadZip
-})
+usersCycle.route('downloadTaskDocument.get', { detail: true, handler: tasksService.download })
+usersCycle.route('downloadTaskZipDocuments.get', { detail: true, handler: tasksService.downloadZip })
 
 module.exports = usersCycle

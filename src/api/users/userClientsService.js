@@ -8,7 +8,7 @@ const sendErrorsFromDB = (res, dbErrors) => {
     return res.status(400).json({errors})
 }
 
-module.exports = async (req, res, next) => {
+const clients = async (req, res, next) => {
 
     await User.findOne({_id: req.params.id}, async (error, user) => {
         if(error) {
@@ -41,3 +41,29 @@ module.exports = async (req, res, next) => {
     })
 
 }
+
+const contacts = async (req, res, next) => {
+
+    await Clients.findOne({_id: req.params.id}, async (error, client) => {
+        if(error) {
+            return sendErrorsFromDB(res, error)
+        } else if (client&&!client.status) {
+            return res.status(401).send({errors: ['Blocked client']})
+        } else if (client) {
+            
+            await User.find({client: client.reference}, async (error, users) => {
+                if(error) {
+                    return sendErrorsFromDB(res, error)
+                } else if (users) {
+                    return res.status(200).send(users)
+                }
+            }).sort('name')
+
+        }else{
+            return res.status(422).send({errors: ['Client not found!']})
+        }
+    })
+
+}
+
+module.exports = { clients, contacts }
