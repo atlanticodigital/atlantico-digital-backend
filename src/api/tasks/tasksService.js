@@ -1,7 +1,21 @@
+const _ = require('lodash')
 const axios = require('axios')
 
 const User = require('../users/users')
 const Client = require('../clients/clients')
+const LoggingModel = require('../users/logging')
+
+const sendErrorsFromDB = (res, dbErrors) => {
+    const errors = []
+    _.forIn(dbErrors.errors, error => errors.push(error.message))
+    return res.status(400).json({errors})
+}
+
+const headers = {
+    'Content-Type': 'application/json',
+    'App-Key': process.env.RUNRUNIT_TOKEN,
+    'User-Token': process.env.RUNRUNIT_USER_TOKEN
+}
 
 const list = async (req, res, next) => {
     const id = req.params.id
@@ -14,12 +28,6 @@ const list = async (req, res, next) => {
 
     if (limit>100){
         limit = 100
-    }
-
-    const headers = {
-        'Content-Type': 'application/json',
-        'App-Key': process.env.RUNRUNIT_TOKEN,
-        'User-Token': process.env.RUNRUNIT_USER_TOKEN
     }
 
     if(!project_id){
@@ -86,12 +94,6 @@ const query = (req, res, next) => {
     if(!id){
         return res.status(422).send({errors: ['Task id not provided.']})
     }
-
-    const headers = {
-        'Content-Type': 'application/json',
-        'App-Key': process.env.RUNRUNIT_TOKEN,
-        'User-Token': process.env.RUNRUNIT_USER_TOKEN
-    }
     
     axios.get(`https://runrun.it/api/v1.0/tasks/${id}/documents`, { headers })
     .then(response => {
@@ -106,4 +108,66 @@ const query = (req, res, next) => {
 
 }
 
-module.exports = { list, query }
+const download = (req, res, next) => {
+    const id = req.query.id || null
+
+    User.findOne({_id: req.params.id},async (err, user) => {
+        if(err) {
+            return sendErrorsFromDB(res, err)
+        } else if (user) {
+
+            await axios.get(`https://runrun.it/api/v1.0/documents/${id}/download`, { headers, maxRedirects: 0 })
+            .catch(error => {
+                if(error.response.status === 302){
+                    LoggingModel.create({
+                        user: user._id,
+                        action: `Realizou um download do runrun.it: #${id}`
+                    })
+
+                    return res.status(200).json({link:error.response.headers.location})
+                }else{
+                    return res.status(400).send({errors: ['Could not download document!']})
+                }
+            })
+
+        } else {
+
+            return res.status(401).send({errors: ['User not found!']})
+
+        }
+    })
+
+}
+
+const downloadZip = (req, res, next) => {
+    const ids = req.query.ids || null
+
+    User.findOne({_id: req.params.id},async (err, user) => {
+        if(err) {
+            return sendErrorsFromDB(res, err)
+        } else if (user) {
+
+            await axios.get(`https://runrun.it/api/v1.0/documents/download_zip`, { params: {ids}, headers, maxRedirects: 0 })
+            .catch(error => {
+                if(error.response.status === 302){
+                    LoggingModel.create({
+                        user: user._id,
+                        action: `Realizou um download zipado do runrun.it: #${ids}`
+                    })
+
+                    return res.status(200).json({link:error.response.headers.location})
+                }else{
+                    return res.status(400).send({errors: ['Could not download zip!']})
+                }
+            })
+
+        } else {
+
+            return res.status(401).send({errors: ['User not found!']})
+
+        }
+    })
+
+}
+
+module.exports = { list, query, download, downloadZip }

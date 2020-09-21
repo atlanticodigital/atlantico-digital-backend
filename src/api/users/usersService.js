@@ -6,6 +6,7 @@ const changePasswordService = require('./changePasswordService')
 const usersClientsService = require('./userClientsService')
 const userUpdateService = require('./userUpdateService')
 const newTicketService = require('../helpdesk/newTicketService')
+const tasksService = require('../tasks/tasksService')
 
 usersCycle.methods(['get', 'post', 'put', 'delete'])
 usersCycle.updateOptions({ new: true, runValidators: true })
@@ -25,6 +26,16 @@ usersCycle.route('changePassword', {
 usersCycle.route('tickets.post', {
     detail: true,
     handler: newTicketService
+})
+
+usersCycle.route('downloadTaskDocument.get', {
+    detail: true,
+    handler: tasksService.download
+})
+
+usersCycle.route('downloadTaskZipDocuments.get', {
+    detail: true,
+    handler: tasksService.downloadZip
 })
 
 module.exports = usersCycle
