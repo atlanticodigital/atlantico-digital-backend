@@ -20,7 +20,7 @@ clientsCycle.route('tasks.get', {
     handler: tasksService.list
 })
 
-clientsCycle.route('task.get', tasksService.query)
+clientsCycle.route('taskDocuments.get', tasksService.query)
 
 
 
