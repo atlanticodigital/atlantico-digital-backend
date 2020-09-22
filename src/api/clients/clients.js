@@ -11,6 +11,7 @@ const clients = new mongoose.Schema({
     runrunit_id: Number,
     runrunit_projects: [ Number ],
     iugu_id: String,
+    group_key: String,
     created_at: { type: Date, default: Date.now },
 })
 
