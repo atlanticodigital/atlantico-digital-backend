@@ -196,13 +196,13 @@ const downloadZip = (req, res, next) => {
 const notify = (req, res, next) => {
 
     async.waterfall([
-        async (done) => {
+        function (done) {
             const id = req.body.data.task.id
             const event = req.body.event
 
             if(event=="task:deliver"){
 
-                await axios.get(`https://runrun.it/api/v1.0/tasks/${id}`, { headers })
+                axios.get(`https://runrun.it/api/v1.0/tasks/${id}`, { headers })
                 .then((task) => {
                     done(null,task.data)
                 })
@@ -215,18 +215,15 @@ const notify = (req, res, next) => {
             }
 
           },
-          async (task, done) => {
+        function (task, done) {
 
-            console.log(task)
-
-            await Client.findOne({runrunit_projects: task.project_id}, (error, client) => {
+            Client.findOne({runrunit_projects: `${task.project_id}`}, (error, client) => {
                 if(error) {
                     done('Error to find client!')
                 } else if (client&&!client.status) {
                     done('Blocked client!')
-                } else if (client) {           
-                    console.log(client) 
-                    done(task,client,done)
+                } else if (client) {
+                    done(null, task, client, done)
                 }else{
                     done('Client not found!')
                 }
@@ -235,19 +232,20 @@ const notify = (req, res, next) => {
           },
           async (task, client, done) => {
 
-            await axios.get(`https://runrun.it/api/v1.0/tasks/${id}/documents`, { headers })
+            return axios.get(`https://runrun.it/api/v1.0/tasks/${task.id}/documents`, { headers })
             .then((docs) => {
-                done(task,client,docs,done);
+                return {task,client,docs:docs.data}
+                done(null, task, client, docs.data, done);
             })
             .catch(error => {
                 done('Task has no documents!')
             })
 
           },
-          async (task, client, docs, done) => {
+          function (data, done) {
               
-            await Tasks.findOneAndUpdate({task_id: id}, {
-                documents: docs.data,
+            Tasks.findOneAndUpdate({task_id: data.task.id}, {
+                documents: data.docs,
                 closed_at: Date.now()
             },
             (err, taskDocs) => {
@@ -256,16 +254,19 @@ const notify = (req, res, next) => {
                 } else if (!taskDocs) {
                     // Insert
                     Tasks.create({
-                        client: client._id,
-                        task_id: id,
-                        response: req.body,
-                        documents: docs.data,
+                        client: data.client._id,
+                        task_id: data.task.id,
+                        response: data.req.body,
+                        documents: data.docs,
                         closed_at: Date.now()
                     })
                 }
-            })
 
-            return res.status(200).send({ task: task.data, client, docs: docs.data });
+                done(null,data.task,data.client,data.docs,done)
+            })
+          },
+          function (task,client,docs, done) {
+            return res.status(200).send({task,client,docs});
           }
     ], function(err) {
         console.log(err)
