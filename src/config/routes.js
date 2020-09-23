@@ -33,4 +33,7 @@ module.exports = (server) => {
     const PersonUpdateService = require('../api/crm/personUpdateService')
     openApi.post('/person/update', PersonUpdateService)
 
+    const tasksService = require('../api/tasks/tasksService')
+    openApi.post('/tasks', tasksService.notify)
+
 }

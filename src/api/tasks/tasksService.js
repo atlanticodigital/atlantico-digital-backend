@@ -1,8 +1,10 @@
 const _ = require('lodash')
 const axios = require('axios')
+const async = require('async')
 
 const User = require('../users/users')
 const Client = require('../clients/clients')
+const Tasks = require('../tasks/tasks')
 const LoggingModel = require('../users/logging')
 
 const sendErrorsFromDB = (res, dbErrors) => {
@@ -68,6 +70,7 @@ const list = async (req, res, next) => {
                         closed_at: task.close_date,
                         closed_at_formatted: `${date.padStart(2, '0')}/${month.padStart(2, '0')}/${closed_date.getFullYear()} ${closed_date.getHours()}:${closed_date.getMinutes()}`,
                         client_name: task.client_name,
+                        attachments_count: task.attachments_count
                     }
 
                 }) });
@@ -190,4 +193,85 @@ const downloadZip = (req, res, next) => {
 
 }
 
-module.exports = { list, show, query, download, downloadZip }
+const notify = (req, res, next) => {
+
+    async.waterfall([
+        async (done) => {
+            const id = req.body.data.task.id
+            const event = req.body.event
+
+            if(event=="task:deliver"){
+
+                await axios.get(`https://runrun.it/api/v1.0/tasks/${id}`, { headers })
+                .then((task) => {
+                    done(null,task.data)
+                })
+                .catch(error => {
+                    done('Task not found!')
+                })
+
+            }else{
+                done('Task not delivered!')
+            }
+
+          },
+          async (task, done) => {
+
+            console.log(task)
+
+            await Client.findOne({runrunit_projects: task.project_id}, (error, client) => {
+                if(error) {
+                    done('Error to find client!')
+                } else if (client&&!client.status) {
+                    done('Blocked client!')
+                } else if (client) {           
+                    console.log(client) 
+                    done(task,client,done)
+                }else{
+                    done('Client not found!')
+                }
+            })
+            
+          },
+          async (task, client, done) => {
+
+            await axios.get(`https://runrun.it/api/v1.0/tasks/${id}/documents`, { headers })
+            .then((docs) => {
+                done(task,client,docs,done);
+            })
+            .catch(error => {
+                done('Task has no documents!')
+            })
+
+          },
+          async (task, client, docs, done) => {
+              
+            await Tasks.findOneAndUpdate({task_id: id}, {
+                documents: docs.data,
+                closed_at: Date.now()
+            },
+            (err, taskDocs) => {
+                if(err) {
+                    done('Error to find task!')
+                } else if (!taskDocs) {
+                    // Insert
+                    Tasks.create({
+                        client: client._id,
+                        task_id: id,
+                        response: req.body,
+                        documents: docs.data,
+                        closed_at: Date.now()
+                    })
+                }
+            })
+
+            return res.status(200).send({ task: task.data, client, docs: docs.data });
+          }
+    ], function(err) {
+        console.log(err)
+        return res.status(400).json({ message: err });
+    })
+
+}
+
+module.exports = { list, show, query, download, downloadZip, notify }
