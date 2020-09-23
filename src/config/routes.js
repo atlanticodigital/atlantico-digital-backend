@@ -14,6 +14,9 @@ module.exports = (server) => {
     const ClientsCycle = require('../api/clients/clientsService')
     ClientsCycle.register(protectedApi, '/clients')
 
+    const TicketsOptionsCycle = require('../api/helpdesk/ticketOptionsService')
+    TicketsOptionsCycle.register(protectedApi, '/tickets/options')
+
     // Open Api
     const openApi = express.Router()
     server.use('/oauth', openApi)

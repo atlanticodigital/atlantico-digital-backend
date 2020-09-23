@@ -5,6 +5,7 @@ const clientInvoicesService = require('./clientInvoicesService')
 const tasksService = require('../tasks/tasksService')
 const usersClientsService = require('../users/userClientsService')
 const clientsGroup = require('./clientsGroups')
+const clientDocument = require('./clientDocument')
 
 clientsCycle.methods(['get', 'post', 'put', 'delete'])
 clientsCycle.updateOptions({ new: true, runValidators: true })
@@ -20,5 +21,6 @@ clientsCycle.route('taskDocuments.get', tasksService.query)
 clientsCycle.route('contacts.get', { detail: true, handler: usersClientsService.contacts })
 
 clientsCycle.route('group.get', { detail: true, handler: clientsGroup.list })
+clientsCycle.route('document.get', { detail: true, handler: clientDocument.receitaWs })
 
 module.exports = clientsCycle

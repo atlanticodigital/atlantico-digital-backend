@@ -113,7 +113,7 @@ const iugu = async (data) => {
     return axios.post(`https://api.iugu.com/v1/customers`,{
         email: data.email[0].value,
         name: data.organizationName,
-        cpf_cnpj: data.document.replace(/[.-/ ]/g,''), //Only numbers
+        cpf_cnpj: data.document.replace(/[-./ ]/g,''), //Only numbers
         zip_code: data.address_postal_code,
         number: data.address_street_number
     }, { headers: headers })
