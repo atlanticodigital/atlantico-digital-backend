@@ -16,6 +16,7 @@ clientsCycle.route('invoice.get', clientInvoicesService.query)
 
 clientsCycle.route('tasks.get', { detail: true, handler: tasksService.list })
 clientsCycle.route('task.get', tasksService.show)
+clientsCycle.route('taskSearch.get', { detail: true, handler: tasksService.search })
 clientsCycle.route('taskDocuments.get', tasksService.query)
 
 clientsCycle.route('contacts.get', { detail: true, handler: usersClientsService.contacts })

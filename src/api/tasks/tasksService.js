@@ -378,4 +378,51 @@ const notify = (req, res, next) => {
 
 }
 
-module.exports = { list, show, query, download, downloadZip, notify }
+const search = (req, res, next) => {
+    const key = req.query.key || null
+
+    if(!key){
+        return res.status(422).send({errors: ['Search key not provided.']})
+    }
+
+    Client.findOne({_id: req.params.id}, async (err, client) => {
+        if(err) {
+            return sendErrorsFromDB(res, err)
+        } else if (client) {
+
+            Tasks.find({ $or: [{ "response.title": { $regex: '.*' + key + '.*' }}, {"documents.data_file_name": { $regex: '.*' + key + '.*' } }] },
+            (err, tasks) => {
+                if(err) {
+                    return sendErrorsFromDB(res, err)
+                }else if(tasks){
+
+                    const results = tasks.map(task => {
+                        return {
+                            id: task.task_id,
+                            title: task.response.title,
+                            docsFound: task.documents.filter(doc => {
+                        
+                                if(doc.data_file_name.includes(key)){
+                                    return doc
+                                }
+        
+                            })
+                        }
+                    })
+
+                    return res.status(200).json(results)
+                }else{
+                    return res.status(200).send({errors: ['No records found!']})
+                }
+            })  
+
+        } else {
+
+            return res.status(401).send({errors: ['Client not found!']})
+
+        }
+
+    })
+}
+
+module.exports = { list, show, query, download, downloadZip, notify, search }
