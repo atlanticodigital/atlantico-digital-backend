@@ -53,6 +53,10 @@ const newFolder = (req, res, next) => {
         }
     }
 
+    if(!folder){
+        return res.status(422).send({errors: ['Folder name required!']})
+    }
+
     Client.findOne({_id: req.params.id}, async (err, client) => {
         if(err) {
             return sendErrorsFromDB(res, err)
