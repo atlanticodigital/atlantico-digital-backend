@@ -7,6 +7,8 @@ const usersClientsService = require('../users/userClientsService')
 const clientsGroup = require('./clientsGroups')
 const clientDocument = require('./clientDocument')
 
+const filesService = require('../files/filesService')
+
 clientsCycle.methods(['get', 'post', 'put', 'delete'])
 clientsCycle.updateOptions({ new: true, runValidators: true })
 clientsCycle.after('post', errorHandler).after('put', errorHandler)
@@ -20,6 +22,8 @@ clientsCycle.route('taskSearch.get', { detail: true, handler: tasksService.searc
 clientsCycle.route('taskDocuments.get', tasksService.query)
 
 clientsCycle.route('contacts.get', { detail: true, handler: usersClientsService.contacts })
+
+clientsCycle.route('filesList.get', { detail: true, handler: filesService.list })
 
 clientsCycle.route('group.get', { detail: true, handler: clientsGroup.list })
 clientsCycle.route('document.get', { detail: true, handler: clientDocument.receitaWs })
