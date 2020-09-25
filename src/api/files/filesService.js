@@ -2,7 +2,13 @@ const Bucket = require('./bucketService')
 const Client = require('../clients/clients')
 
 const list = (req, res, next) => {
-    const path = req.query.path || ''
+    let path = req.query.path || ''
+
+    if(path){
+        if(path.substring(path.length-1)!="/"){
+            path += "/"
+        }
+    }
 
     Client.findOne({_id: req.params.id}, async (err, client) => {
         if(err) {
