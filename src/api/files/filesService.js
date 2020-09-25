@@ -102,7 +102,7 @@ const deleteObject = (req, res, next) => {
                 if(user_id){
                     LoggingModel.create({
                         user: user_id,
-                        action: `Criou uma nova pasta: ${folder}`
+                        action: `Apagou um arquivo/pasta: ${path}`
                     })
                 }
 
