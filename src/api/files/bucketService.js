@@ -26,6 +26,25 @@ const createFolder = async (path) => {
 
 }
 
+const deleteObject = async (path) => {
+
+    const params = {
+        Bucket: bucketName,
+        Key: path,
+    }
+
+    return S3.deleteObject(params).promise()
+        .then(data => {
+
+            return true
+            
+        })
+        .catch(err => {
+            return false
+        })
+
+}
+
 const exists = async (path) => {
 
     const params = {
@@ -93,4 +112,4 @@ const list = async (path) => {
 
 }
 
-module.exports = { list, exists }
+module.exports = { list, exists, createFolder, deleteObject }
