@@ -5,7 +5,10 @@ const async = require('async')
 const User = require('../users/users')
 const Client = require('../clients/clients')
 const Tasks = require('../tasks/tasks')
+const TasksTypes = require('../tasks/tasksTypes')
 const LoggingModel = require('../users/logging')
+const email = require('../common/sendGrid')
+const FormatBytes = require('../common/formatBytes')
 
 const sendErrorsFromDB = (res, dbErrors) => {
     const errors = []
@@ -194,10 +197,10 @@ const downloadZip = (req, res, next) => {
 }
 
 const notify = (req, res, next) => {
+    const id = req.body.data.task.id
 
     async.waterfall([
         function (done) {
-            const id = req.body.data.task.id
             const event = req.body.event
 
             if(event=="task:deliver"){
@@ -207,30 +210,30 @@ const notify = (req, res, next) => {
                     done(null,task.data)
                 })
                 .catch(error => {
-                    done('Task not found!')
+                    done(`Tarefa #${id} não foi encontrada no runrun.it!`)
                 })
 
             }else{
-                done('Task not delivered!')
+                done('Não é uma tarefa que foi entregue!')
             }
 
-          },
+        },
         function (task, done) {
 
             Client.findOne({runrunit_projects: `${task.project_id}`}, (error, client) => {
                 if(error) {
-                    done('Error to find client!')
+                    done('Erro ao localizar cliente na base do Atlântico Digital!')
                 } else if (client&&!client.status) {
-                    done('Blocked client!')
+                    done(`O cliente #${client.reference} está bloqueado no Atlântico Digital!`)
                 } else if (client) {
-                    done(null, task, client, done)
+                    done(null, task, client)
                 }else{
-                    done('Client not found!')
+                    done(`Nenhum cliente encontrado para o projeto #${task.project_id} no Atlântico Digital!`)
                 }
             })
             
-          },
-          async (task, client, done) => {
+        },
+        async (task, client, done) => {
 
             return axios.get(`https://runrun.it/api/v1.0/tasks/${task.id}/documents`, { headers })
             .then((docs) => {
@@ -238,38 +241,138 @@ const notify = (req, res, next) => {
                 done(null, task, client, docs.data, done);
             })
             .catch(error => {
-                done('Task has no documents!')
+                done(`A tarefa #${task.id} não possui documentos anexados.`)
             })
 
-          },
-          function (data, done) {
-              
+        },
+        function (data, done) {
+            
             Tasks.findOneAndUpdate({task_id: data.task.id}, {
                 documents: data.docs,
+                response: data.task,
                 closed_at: Date.now()
             },
             (err, taskDocs) => {
                 if(err) {
-                    done('Error to find task!')
+                    done('Erro ao pesquisar no histórico de tarefas no Atlântico Digital!')
                 } else if (!taskDocs) {
                     // Insert
                     Tasks.create({
                         client: data.client._id,
                         task_id: data.task.id,
-                        response: data.req.body,
+                        response: data.task,
                         documents: data.docs,
                         closed_at: Date.now()
                     })
                 }
 
-                done(null,data.task,data.client,data.docs,done)
+                done(null,data.task,data.client,data.docs)
             })
-          },
-          function (task,client,docs, done) {
-            return res.status(200).send({task,client,docs});
-          }
+
+        },
+        function (task,client,docs,done) {
+            
+            TasksTypes.findOne({runrunit_id: task.type_id},
+            (err, type) => {
+                if(err) {
+                    done('Erro ao localizar tipo de tarefa no Atlântico Digital!')
+                }else if(type){
+                    done(null,task,client,docs,type)
+                }else{
+                    done('Tipo de tarefa não encontrado no Atlântico Digital!')
+                }
+            })
+
+        },
+        function (task,client,docs,type,done) {
+
+            User.find({client: client.reference, $or: [{ profile: type.profile }, { profile: "ADMIN" }]},
+            (err, clients) => {
+                if(err) {
+                    done('Erro ao localizar contatos para notificação no Atlântico Digital!')
+                }else if(clients){
+                    done(null,task,client,docs,type,clients)
+                }else{
+                    done('Não foram encontrados contatos para realizar a notificação da tarefa!')
+                }
+            })            
+
+        },
+        function (task,client,docs,type,users,done) {
+
+            let recipients = []
+            let msg = [];
+            
+            users.map(user => { user.email.map(email => { recipients.push({email: email.value, id: user._id}) } ) })
+
+            const uniqueRecipients = Array.from(new Set(recipients.map(a => a.email)))
+                .map(email => {
+                    return recipients.find(a => a.email === email)
+                })
+
+            let doc_ids = docs.map(doc=>{ return doc.id }).join()
+
+            uniqueRecipients.forEach(recipient => {
+                msg.push({
+                    to: recipient.email,
+                    templateId: process.env.SENDGRID_TEMPLATE_NEWFILES,
+                    dynamicTemplateData: {
+                        taskid: task.id,
+                        email: recipient.email,
+                        reference: client.reference,
+                        client: client.name,
+                        link_zip: `https://api.atlantico.digital/oauth/tasks/downloadzip?user=${recipient.id}&ids=${doc_ids}`,
+                        documents: docs.map(doc=>{
+                            return {
+                                name: doc.data_file_name,
+                                size: FormatBytes(doc.data_file_size),
+                                link: `https://api.atlantico.digital/oauth/tasks/download?user=${recipient.id}&id=${doc.id}`                                
+                            }
+                        })
+                    }
+                })
+            });
+
+            email.send(msg,true)
+            .then(
+                response => {
+                    if(!response){
+                        done('Ocorreu um erro inesperado e não foi possível realizar a notificação por e-mail para os contatos.')
+                    }else{
+                        done(null,task,client,docs,type,users)
+                    }
+                }
+            )            
+
+        },
+        function (task,client,docs,type,users,done) {
+            return res.status(200).send({task,client,docs,type,users});
+        }
     ], function(err) {
         console.log(err)
+
+        let msg = {
+            to: ["agenciablackpearl@gmail.com"],
+            templateId: process.env.SENDGRID_TEMPLATE_ERRORS,
+            dynamicTemplateData: {
+                subject: `Cliente da tarefa #${id} não foi notificado`,
+                title: "Falha ao notificar tarefa",
+                description: `Ao realizar a validação de dados para notificação da tarefa #${id}, ocorreram os erros listados abaixo.`,
+                errors: [err],
+            }
+        }
+
+        email.send(msg)
+        .then(
+            response => {
+                if(!response){
+                    console.log(`Task #${id} notification error email not sended!`)
+                }else{
+                    console.log(`Task #${id} notification error sended!`)
+                }
+            }
+        )    
+
         return res.status(400).json({ message: err });
     })
 
