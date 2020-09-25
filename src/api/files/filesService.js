@@ -1,5 +1,6 @@
 const Bucket = require('./bucketService')
 const Client = require('../clients/clients')
+const LoggingModel = require('../users/logging')
 
 const list = (req, res, next) => {
     let path = req.query.path || ''
@@ -43,7 +44,8 @@ const list = (req, res, next) => {
 
 const newFolder = (req, res, next) => {
     let path = req.query.path || ''
-    let folder = req.query.folder || ''
+    const folder = req.query.folder || ''
+    const user_id = req.query.user_id || null
 
     if(path){
         if(path.substring(path.length-1)!="/"){
@@ -59,6 +61,13 @@ const newFolder = (req, res, next) => {
             const data = await Bucket.createFolder(`${client._id}/${path}${folder}/`)
 
             if(data){
+                if(user_id){
+                    LoggingModel.create({
+                        user: user_id,
+                        action: `Criou uma nova pasta: ${folder}`
+                    })
+                }
+
                 return res.status(200).json("Folder created!")
             }else{
                 return res.status(400).send({errors: ['Cannot create folder']})
@@ -76,6 +85,7 @@ const newFolder = (req, res, next) => {
 
 const deleteObject = (req, res, next) => {
     let path = req.query.path || ''
+    const user_id = req.query.user_id || null
 
     Client.findOne({_id: req.params.id}, async (err, client) => {
         if(err) {
@@ -85,6 +95,13 @@ const deleteObject = (req, res, next) => {
             const data = await Bucket.deleteObject(`${client._id}/${path}`)
 
             if(data){
+                if(user_id){
+                    LoggingModel.create({
+                        user: user_id,
+                        action: `Criou uma nova pasta: ${folder}`
+                    })
+                }
+
                 return res.status(200).json("Object deleted!")
             }else{
                 return res.status(400).send({errors: ['Cannot delete object']})
