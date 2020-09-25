@@ -44,8 +44,8 @@ const list = (req, res, next) => {
 
 const newFolder = (req, res, next) => {
     let path = req.query.path || ''
-    const folder = req.query.folder || ''
     const user_id = req.query.user_id || null
+    const folder = req.body.folder || ''
 
     if(path){
         if(path.substring(path.length-1)!="/"){

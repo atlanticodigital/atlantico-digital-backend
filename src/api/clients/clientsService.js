@@ -24,8 +24,8 @@ clientsCycle.route('taskDocuments.get', tasksService.query)
 clientsCycle.route('contacts.get', { detail: true, handler: usersClientsService.contacts })
 
 clientsCycle.route('filesList.get', { detail: true, handler: filesService.list })
-clientsCycle.route('newFolder.get', { detail: true, handler: filesService.newFolder })
-clientsCycle.route('deleteObject.get', { detail: true, handler: filesService.deleteObject })
+clientsCycle.route('newFolder.post', { detail: true, handler: filesService.newFolder })
+clientsCycle.route('deleteObject.delete', { detail: true, handler: filesService.deleteObject })
 
 clientsCycle.route('group.get', { detail: true, handler: clientsGroup.list })
 clientsCycle.route('document.get', { detail: true, handler: clientDocument.receitaWs })
