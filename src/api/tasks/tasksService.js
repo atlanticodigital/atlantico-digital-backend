@@ -390,7 +390,7 @@ const search = (req, res, next) => {
             return sendErrorsFromDB(res, err)
         } else if (client) {
 
-            Tasks.find({ $or: [{ "response.title": { $regex: '.*' + key + '.*' }}, {"documents.data_file_name": { $regex: '.*' + key + '.*' } }] },
+            Tasks.find({ $or: [{ "response.title": { $regex: key, $options: "i" }}, {"documents.data_file_name": { $regex: key, $options: "i" } }] },
             (err, tasks) => {
                 if(err) {
                     return sendErrorsFromDB(res, err)
@@ -402,7 +402,7 @@ const search = (req, res, next) => {
                             title: task.response.title,
                             docsFound: task.documents.filter(doc => {
                         
-                                if(doc.data_file_name.includes(key)){
+                                if(doc.data_file_name.toLowerCase().includes(key.toLowerCase())){
                                     return doc
                                 }
         
