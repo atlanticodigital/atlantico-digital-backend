@@ -28,6 +28,7 @@ clientsCycle.route('newFolder.post', { detail: true, handler: filesService.newFo
 clientsCycle.route('deleteObject.delete', { detail: true, handler: filesService.deleteObject })
 clientsCycle.route('upload.post', { detail: true, handler: filesService.upload })
 clientsCycle.route('lastUploads.get', { detail: true, handler: filesService.lastUploads })
+clientsCycle.route('downloadUrl.get', { detail: true, handler: filesService.download })
 
 clientsCycle.route('group.get', { detail: true, handler: clientsGroup.list })
 clientsCycle.route('document.get', { detail: true, handler: clientDocument.receitaWs })

@@ -134,4 +134,22 @@ const upload = async (path,base64data) => {
 
 }
 
-module.exports = { list, exists, createFolder, deleteObject, upload }
+const signedUrl = async (path, res) => {
+
+    const params = {
+        Bucket: bucketName,
+        Key: `${path}`,
+        Expires: 60 * 5
+    }
+
+    const promise = S3.getSignedUrlPromise('getObject',params);
+
+    return promise.then(function(url) {
+        return url
+      }, function(err) {
+        return false
+    })
+
+}
+
+module.exports = { list, exists, createFolder, deleteObject, upload, signedUrl }

@@ -229,4 +229,45 @@ const lastUploads = (req, res, next) => {
 
 }
 
-module.exports = { list, newFolder, deleteObject, upload, lastUploads }
+const download = (req, res, next) => {
+    let path = req.query.path || ''
+    const user_id = req.query.user_id || null
+
+    Client.findOne({_id: req.params.id}, async (err, client) => {
+        if(err) {
+            return sendErrorsFromDB(res, err)
+        } else if (client) {
+
+            const url = await Bucket.signedUrl(`${client._id}/${path}`)
+
+            if(url){
+                if(user_id){
+                    const origin = path.split("/")
+                    const file = origin.pop()
+
+                    LoggingModel.create({
+                        user: user_id,
+                        action: `Baixou um arquivo: ${file}`
+                    })
+                }
+
+                if(!url){
+                    return res.status(400).send({errors: ['Cannot download file']})
+                }
+
+                return res.status(200).json({url})
+            }else{
+                return res.status(400).send({errors: ['Cannot download file']})
+            }
+
+        } else {
+
+            return res.status(401).send({errors: ['Client not found!']})
+
+        }
+
+    })
+
+}
+
+module.exports = { list, newFolder, deleteObject, upload, lastUploads, download }
