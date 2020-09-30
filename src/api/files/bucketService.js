@@ -112,4 +112,26 @@ const list = async (path) => {
 
 }
 
-module.exports = { list, exists, createFolder, deleteObject }
+const upload = async (path,base64data) => {
+
+    const params = {
+        Bucket: bucketName,
+        Key: `${path}`,
+        Body: base64data,
+        ContentEncoding: 'base64',
+        ACL: 'public-read'
+    }
+
+    return S3.putObject(params).promise()
+        .then(data => {
+            console.log(params)
+            return true
+            
+        })
+        .catch(err => {
+            return false
+        })
+
+}
+
+module.exports = { list, exists, createFolder, deleteObject, upload }
