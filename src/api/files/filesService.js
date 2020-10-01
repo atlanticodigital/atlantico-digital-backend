@@ -217,7 +217,7 @@ const lastUploads = (req, res, next) => {
                 } else {
                     return res.status(200).send({})
                 }
-            }).limit(limit).sort([['uploaded_at', -1]])
+            }).limit(limit).sort({ $natural: -1 })
 
         } else {
 
