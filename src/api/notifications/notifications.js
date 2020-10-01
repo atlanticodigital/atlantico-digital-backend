@@ -9,7 +9,7 @@ const notifications = new mongoose.Schema({
     type: String,
     data: Object,
     created_at: { type: Date, default: Date.now() },
-    read_at: Date
+    read_at: { type: Date, default: null }
 })
 
 module.exports = restful.model('notifications', notifications)

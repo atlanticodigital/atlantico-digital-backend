@@ -314,7 +314,11 @@ const notify = (req, res, next) => {
                     title: task.title,
                     description: `Arquivos #${task.id} disponíveis para download.`,
                     type: 'tasks',
-                    data: task
+                    data: {
+                            id: task.id,
+                            title: task.title,
+                            project_id: task.project_id
+                        }
                 })
             })
 
@@ -355,7 +359,7 @@ const notify = (req, res, next) => {
                         done(null,task,client,docs,type,users)
                     }
                 }
-            )            
+            )       
 
         },
         function (task,client,docs,type,users,done) {
