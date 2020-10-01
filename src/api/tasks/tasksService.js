@@ -6,9 +6,11 @@ const User = require('../users/users')
 const Client = require('../clients/clients')
 const Tasks = require('../tasks/tasks')
 const TasksTypes = require('../tasks/tasksTypes')
+const Notifications = require('../notifications/notifications')
 const LoggingModel = require('../users/logging')
 const email = require('../common/sendGrid')
 const FormatBytes = require('../common/formatBytes')
+
 
 const sendErrorsFromDB = (res, dbErrors) => {
     const errors = []
@@ -303,7 +305,18 @@ const notify = (req, res, next) => {
             let recipients = []
             let msg = [];
             
-            users.map(user => { user.email.map(email => { recipients.push({email: email.value, id: user._id}) } ) })
+            users.map(user => { 
+                user.email.map(email => { recipients.push({email: email.value, id: user._id}) } )
+
+                Notifications.create({
+                    client: client._id,
+                    user: user._id,
+                    title: task.title,
+                    description: `Arquivos #${task.id} disponíveis para download.`,
+                    type: 'tasks',
+                    data: task
+                })
+            })
 
             const uniqueRecipients = Array.from(new Set(recipients.map(a => a.email)))
                 .map(email => {
