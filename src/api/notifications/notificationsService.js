@@ -12,6 +12,9 @@ const sendErrorsFromDB = (res, dbErrors) => {
 const list = (req, res, next) => {
     const user_id = req.params.id
     const client_id = req.query.client_id || null
+    const start = parseInt(req.query.start) || 0
+    const limit = parseInt(req.query.limit) || 12
+    const unread = req.query.unread ? true : false
 
     if(!client_id){
         return res.status(422).send({errors: ['Client Id required!']})
@@ -26,8 +29,14 @@ const list = (req, res, next) => {
                 if(err) {
                     return sendErrorsFromDB(res, err)
                 } else if (client) {
+
+                    let query = {user: user_id, client: client_id}
+
+                    if(unread){
+                        query.read_at = null
+                    }
         
-                    Notifications.find({user: user_id, client: client_id}, (err, notifications) => {
+                    Notifications.find(query, (err, notifications) => {
                         if(err) {
                             return sendErrorsFromDB(res, err)
                         } else if (notifications) {
@@ -35,7 +44,7 @@ const list = (req, res, next) => {
                         }else{
                             return res.status(200).send([])
                         }
-                    }).sort({created_at: -1})
+                    }).sort({created_at: -1}).skip(start).limit(limit)
         
                 } else {
         
