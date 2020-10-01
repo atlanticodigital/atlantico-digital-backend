@@ -5,7 +5,7 @@ const express = require('express')
 const server = express()
 const allowCors = require('./cors')
 
-server.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
+server.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 server.use(bodyParser.json())
 server.use(allowCors)
 
