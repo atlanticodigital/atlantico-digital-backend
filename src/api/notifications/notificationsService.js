@@ -64,4 +64,37 @@ const list = (req, res, next) => {
 
 }
 
-module.exports = { list }
+const read = (req, res, next) => {
+    const user_id = req.params.id
+    const notification_id = req.query.id || null
+
+    if(!notification_id){
+        return res.status(422).send({errors: ['Notification Id required!']})
+    }
+
+    User.findOne({_id: user_id}, (err, user) => {
+        if(err) {
+            return sendErrorsFromDB(res, err)
+        } else if (user) {
+        
+            Notifications.findOneAndUpdate({_id: notification_id}, {read_at: Date.now()}, (err, notification) => {
+                if(err) {
+                    return sendErrorsFromDB(res, err)
+                } else if (notification) {
+                    return res.status(200).json("Notification updated!")
+                }else{
+                    return res.status(401).send({errors: ['Notification not found!']})
+                }
+            })
+
+        } else {
+
+            return res.status(401).send({errors: ['User not found!']})
+
+        }
+
+    })
+
+}
+
+module.exports = { list, read }
