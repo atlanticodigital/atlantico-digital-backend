@@ -1,6 +1,10 @@
 const _ = require('lodash')
 const User = require('./users')
 const Clients = require('../clients/clients')
+const ContactRequests = require('./contacts')
+const sendGrid = require('../common/sendGrid')
+const profileAccess = require('../common/profileAccess')
+const LoggingModel = require('./logging')
 
 const sendErrorsFromDB = (res, dbErrors) => {
     const errors = []
@@ -66,4 +70,92 @@ const contacts = async (req, res, next) => {
 
 }
 
-module.exports = { clients, contacts }
+const newContact = async (req, res, next) => {
+    const body = {
+        profile: req.body.profile || null,
+        document: req.body.document || null,
+        name: req.body.name || null,
+        email: req.body.email || null,
+        phone: req.body.phone || null,
+        zipcode: req.body.zipcode || null,
+        address_number: req.body.address_number || null,
+        clients: req.body.clients || null
+    }
+
+    for (const [key, value] of Object.entries(body)) {
+        if(!value){
+            return res.status(422).send({errors: [`Value for ${key} not provided.`]})
+        }
+    }
+
+    await User.findOne({_id: req.params.id}, async (error, user) => {
+        if(error) {
+            return sendErrorsFromDB(res, error)
+        } else if (user) {
+
+            const dynamicData = {
+                subject: `Nova solicitação de contato: ${body.name}`,
+                name: body.name,
+                email: body.email,
+                phone: body.phone,
+                document: body.document,
+                zipcode: body.zipcode,
+                address_number: body.address_number,
+                clients: body.clients,
+                profile: body.profile.map(profile => { return profileAccess(profile,true) })
+            }
+
+            let msg = [];
+
+            user.email.forEach(email => {
+                msg.push({
+                    to: email.value,
+                    templateId: process.env.SENDGRID_TEMPLATE_CONTACT_NEW,
+                    dynamicTemplateData: dynamicData
+                })
+            })
+
+            msg.push({
+                to: "agenciablackpearl@gmail.com",
+                templateId: process.env.SENDGRID_TEMPLATE_CONTACT_ALERT,
+                dynamicTemplateData: dynamicData
+            })
+    
+            sendGrid.send(msg,true)
+            .then(
+                response => {
+                    if(!response){
+                        console.log(`New Contact: ${body.name} notification error, email not sended!`)
+                    }else{
+                        console.log(`New Contact: ${body.name} notification sended!`)
+                    }
+                }
+            )  
+            
+            ContactRequests.create({
+                user: user._id,
+                name: body.name,
+                email: body.email,
+                phone: body.phone,
+                document: body.document,
+                zipcode: body.zipcode,
+                address_number: body.address_number,
+                clients: body.clients,
+                profile: body.profile
+            })
+
+            LoggingModel.create({
+                user: user._id,
+                action: `Solicitou um novo cadastro de contato: ${body.name}`
+            })
+
+            return res.status(200).json({result: ["Contact request done!"]})
+
+        }else{
+            return res.status(422).send({errors: ['User not found!']})
+        }
+    })
+
+}
+
+module.exports = { clients, contacts, newContact }

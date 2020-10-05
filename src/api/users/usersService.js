@@ -20,6 +20,7 @@ usersCycle.route('changePassword', { detail: true, handler: changePasswordServic
 
 usersCycle.route('tickets.post', { detail: true, handler: newTicketService })
 usersCycle.route('notifications.get', { detail: true, handler: notificationsService.list })
+usersCycle.route('request.post', { detail: true, handler: usersClientsService.newContact })
 
 usersCycle.route('downloadTaskDocument.get', { detail: true, handler: tasksService.download })
 usersCycle.route('downloadTaskZipDocuments.get', { detail: true, handler: tasksService.downloadZip })
