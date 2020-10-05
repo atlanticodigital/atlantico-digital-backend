@@ -407,7 +407,7 @@ const search = (req, res, next) => {
             return sendErrorsFromDB(res, err)
         } else if (client) {
 
-            Tasks.find({ $or: [{ "response.title": { $regex: key, $options: "i" }}, {"documents.data_file_name": { $regex: key, $options: "i" } }] },
+            Tasks.find({ $or: [{ client: req.params.id, "response.title": { $regex: key, $options: "i" }}, {client: req.params.id, "documents.data_file_name": { $regex: key, $options: "i" } }] },
             (err, tasks) => {
                 if(err) {
                     return sendErrorsFromDB(res, err)
