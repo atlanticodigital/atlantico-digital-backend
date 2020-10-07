@@ -7,6 +7,8 @@ module.exports = (req, res, next) => {
     const object = req.body.meta.object
     const action = req.body.meta.action
 
+    console.log(id)
+
     if(action === "updated" && object === "person") {
 
         axios.get(`https://api.pipedrive.com/v1/persons/${id}?api_token=${process.env.PIPEDRIVE_TOKEN}`)
@@ -45,8 +47,6 @@ module.exports = (req, res, next) => {
                         }
                     })
 
-                    console.log(dominioUserPass.split(":")[0])
-
                     //Atualiza no AD e retorna o usuário
                     usersCycle.findOneAndUpdate({login: login}, {
                         name: name,
@@ -64,16 +64,24 @@ module.exports = (req, res, next) => {
                             },
                         },
                         profile: "ADMIN",
-                        client: connections.split(","),
+                        client: (connections) ? connections.split(",") : null,
                     },
-                    (err, user) => {
+                    async (err, user) => {
     
                         if(err) {
                             console.log(err)
                         } else if (user) {
-                            console.log(user)
-                            //Atualiza no Movidesk com base no id registrado no AD se houver
-                            // return res.status(400).send({errors: ['Login already in use.']})
+
+                            await axios.patch(`https://api.movidesk.com/public/v1/persons?token=${process.env.MOVIDESK_TOKEN}&id=${login}`,{
+                                businessName: name,
+                                emails: email.map((email) => { return { emailType: 'Profissional', email: email.value, isDefault: email.primary } })
+                            })
+                            .then(async (response) => {
+                                // console.log(response)
+                            })
+                            .catch(error => {
+                                console.log(error)
+                            })
                         }
                 
                     })
@@ -82,6 +90,7 @@ module.exports = (req, res, next) => {
 
                 }))
                 .catch(error => {
+                    console.log(error)
                     return res.status(400).send({errors: error})
                 })
 
