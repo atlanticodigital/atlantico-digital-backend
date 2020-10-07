@@ -209,6 +209,9 @@ const notify = (req, res, next) => {
 
                 axios.get(`https://runrun.it/api/v1.0/tasks/${id}`, { headers })
                 .then((task) => {
+                    if(!task.data.attachments_count){
+                        done(`Tarefa #${id} não possui anexos para notificação!`)
+                    }
                     done(null,task.data)
                 })
                 .catch(error => {
