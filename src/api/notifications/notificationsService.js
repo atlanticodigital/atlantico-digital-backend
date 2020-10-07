@@ -44,7 +44,7 @@ const list = (req, res, next) => {
                         }else{
                             return res.status(200).send([])
                         }
-                    }).sort({created_at: -1}).skip(start).limit(limit)
+                    }).sort({ $natural: -1 }).skip(start).limit(limit)
         
                 } else {
         
