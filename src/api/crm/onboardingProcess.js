@@ -225,6 +225,8 @@ module.exports = async (id, res, deal, person, organization, products) => {
         errors.push(`O Id do usuário já está em uso: ${login}`)
     }
 
+    reference = parseInt(reference)
+
     const verifyReference = await clientsCycle.findOne({reference})
 
     if(await verifyReference){
