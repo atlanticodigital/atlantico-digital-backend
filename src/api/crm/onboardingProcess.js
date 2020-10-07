@@ -168,7 +168,7 @@ module.exports = async (id, res, deal, person, organization, products) => {
     // Organization data
     const organizationName = organization.data.data["name"] //Client name
     const { address_postal_code, address_street_number } = organization.data.data
-    const reference = organization.data.data[process.env.PIPEDRIVE_CLIENT_KEY] //Client major reference
+    let reference = organization.data.data[process.env.PIPEDRIVE_CLIENT_KEY] //Client major reference
     const document = organization.data.data[process.env.PIPEDRIVE_DOCUMENT_KEY] //Client CNPJ
     const firstDueDate = organization.data.data[process.env.PIPEDRIVE_DUEDATE_KEY] //Due date
     const organizationNickName = organization.data.data[process.env.PIPEDRIVE_ORGANIZATION_NICKNAME_KEY] //Organization Nickname
