@@ -8,6 +8,7 @@ const contacts = new mongoose.Schema({
     phone: String,
     document: String,
     zipcode: String,
+    birthday: String,
     address_number: String,
     clients: Object,
     agreed: { type: Boolean, default: true },

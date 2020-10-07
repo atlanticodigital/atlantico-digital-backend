@@ -79,7 +79,8 @@ const newContact = async (req, res, next) => {
         phone: req.body.phone || null,
         zipcode: req.body.zipcode || null,
         address_number: req.body.address_number || null,
-        clients: req.body.clients || null
+        clients: req.body.clients || null,
+        birthday: req.body.birthday || null
     }
 
     for (const [key, value] of Object.entries(body)) {
@@ -102,7 +103,8 @@ const newContact = async (req, res, next) => {
                 zipcode: body.zipcode,
                 address_number: body.address_number,
                 clients: body.clients,
-                profile: body.profile.map(profile => { return profileAccess(profile,true) })
+                profile: body.profile.map(profile => { return profileAccess(profile,true) }),
+                birthday: body.birthday
             }
 
             let msg = [];
@@ -141,7 +143,8 @@ const newContact = async (req, res, next) => {
                 zipcode: body.zipcode,
                 address_number: body.address_number,
                 clients: body.clients,
-                profile: body.profile
+                profile: body.profile,
+                birthday: body.birthday
             })
 
             LoggingModel.create({
