@@ -27,6 +27,7 @@ const users = new mongoose.Schema({
     },
     agreed: { type: Boolean, default: true },
     status: { type: Boolean, default: true },
+    prospect: { type: Boolean, default: false },
     profile: { 
         type: Array,
         required: [true, 'Informe o perfil do usuário!']
