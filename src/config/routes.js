@@ -39,4 +39,9 @@ module.exports = (server) => {
     const tasksService = require('../api/tasks/tasksService')
     openApi.post('/tasks', tasksService.notify)
 
+    const prospectService = require('../api/users/prospectService')
+    const loginPassHandler = require('../api/users/loginPassHandler')
+
+    openApi.post('/prospect', prospectService.prepare, loginPassHandler, prospectService.newProspect, AuthService.login)
+
 }

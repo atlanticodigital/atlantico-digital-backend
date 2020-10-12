@@ -41,18 +41,20 @@ const login = (req, res, next) => {
 
             let primary = null
 
-            if(user.client[0]){
-                await Client.findOne({reference: user.client[0]}, (err, client) => {
-                    if(client){
-                        primary = client
-                    }
-                })
-            } else {
-                return res.status(422).send({errors: ['User has no linked clients']})
-            }
-
-            if(!primary){
-                return res.status(422).send({errors: ['None clients found for this user']})
+            if(!user.prospect){
+                if(user.client[0]){
+                    await Client.findOne({reference: user.client[0]}, (err, client) => {
+                        if(client){
+                            primary = client
+                        }
+                    })
+                } else {
+                    return res.status(422).send({errors: ['User has no linked clients']})
+                }
+    
+                if(!primary){
+                    return res.status(422).send({errors: ['None clients found for this user']})
+                }
             }
 
             res.json({ user, primary, token, expiresIn: "1 day" })
