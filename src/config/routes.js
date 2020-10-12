@@ -20,6 +20,9 @@ module.exports = (server) => {
     const tasksTypesCycle = require('../api/tasks/tasksTypesService')
     tasksTypesCycle.register(protectedApi, '/tasks')
 
+    const DocumentService = require('../api/clients/clientDocument')
+    protectedApi.get('/document/:document',DocumentService.request)
+
     // Open Api
     const openApi = express.Router()
     server.use('/oauth', openApi)
