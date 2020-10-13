@@ -41,7 +41,7 @@ const login = (req, res, next) => {
 
             let primary = null
 
-            if(!user.prospect){
+            if(!user.prospect&&!user.is_admin){
                 if(user.client[0]){
                     await Client.findOne({reference: user.client[0]}, (err, client) => {
                         if(client){
