@@ -445,4 +445,31 @@ const search = (req, res, next) => {
     })
 }
 
-module.exports = { list, show, query, download, downloadZip, notify, search }
+const create = (req, res, next) => {
+
+    Client.findOne({reference: req.body.reference}, async (err, client) => {
+        if(err) {
+            return sendErrorsFromDB(res, err)
+        } else if (client) {
+
+            Tasks.create({
+                client: client._id,
+                task_id: req.body.response.id,
+                response: req.body.response,
+                documents: req.body.documents,
+                closed_at: req.body.closed_at
+            }) 
+
+            return res.status(200).json({msg: ['Success'], record: req.body})
+
+        } else {
+
+            return res.status(401).send({errors: ['Client not found!']})
+
+        }
+
+    })
+
+}
+
+module.exports = { list, show, query, download, downloadZip, notify, search, create }
