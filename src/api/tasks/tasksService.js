@@ -452,15 +452,25 @@ const create = (req, res, next) => {
             return sendErrorsFromDB(res, err)
         } else if (client) {
 
-            Tasks.create({
-                client: client._id,
-                task_id: req.body.response.id,
-                response: req.body.response,
-                documents: req.body.documents,
-                closed_at: req.body.closed_at
-            }) 
+            Tasks.findOne({task_id: req.body.response.id}, (err, task) => {
+                if(err) {
+                    return sendErrorsFromDB(res, err)
+                }else if(task){
+                    return res.status(401).send({errors: ['Task already exists!']})
+                }else{
+                    
+                    Tasks.create({
+                        client: client._id,
+                        task_id: req.body.response.id,
+                        response: req.body.response,
+                        documents: req.body.documents,
+                        closed_at: req.body.closed_at
+                    }) 
+        
+                    return res.status(200).json({msg: ['Success'], record: req.body})
 
-            return res.status(200).json({msg: ['Success'], record: req.body})
+                }
+            })
 
         } else {
 
