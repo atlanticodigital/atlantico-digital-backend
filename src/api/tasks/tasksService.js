@@ -456,7 +456,7 @@ const create = (req, res, next) => {
                 if(err) {
                     return sendErrorsFromDB(res, err)
                 }else if(task){
-                    return res.status(401).send({errors: ['Task already exists!']})
+                    return res.status(401).send({errors: [`Task #${req.body.response.id} already exists!`]})
                 }else{
                     
                     Tasks.create({
@@ -465,7 +465,13 @@ const create = (req, res, next) => {
                         response: req.body.response,
                         documents: req.body.documents,
                         closed_at: req.body.closed_at
-                    }) 
+                    }), (err, task) => {
+
+                        if(err) {
+                            return sendErrorsFromDB(res, err)
+                        }
+
+                    }
         
                     return res.status(200).json({msg: ['Success'], record: req.body})
 
