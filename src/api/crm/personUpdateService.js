@@ -1,5 +1,6 @@
 const axios = require('axios')
 
+const profileAccess = require('../common/profileAccess')
 const usersCycle = require('../users/users')
 
 module.exports = (req, res, next) => {
@@ -63,7 +64,7 @@ module.exports = (req, res, next) => {
                                 pass: (contaAzulUserPass) ? contaAzulUserPass.split(":")[1] : null,
                             },
                         },
-                        profile: "ADMIN",
+                        profile: (profile) ? profile.split(",").map(item => { return profileAccess(item) }) : null,
                         client: (connections) ? connections.split(",") : null,
                     },
                     async (err, user) => {
