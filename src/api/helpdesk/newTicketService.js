@@ -72,7 +72,7 @@ module.exports = async (req, res, next) => {
                             title: "Novo ticket de atendimento criado",
                             description: `Ticket de atendimento #${response.data.id}.`,
                             type: 'ticket',
-                            data: response.data
+                            data: {id: response.data.id, subject, title, description, expec_date}
                         }))
 
                         user.email.map(email => { 
