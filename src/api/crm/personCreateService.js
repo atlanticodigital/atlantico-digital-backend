@@ -1,9 +1,9 @@
 const bcrypt = require('bcrypt')
 const axios = require('axios')
+const generator = require('generate-password')
 
 const usersCycle = require('../users/users')
 const profileAccess = require('../common/profileAccess')
-const generator = require('generate-password')
 const sendGrid = require('../common/sendGrid')
 
 const movidesk = async (data) => {

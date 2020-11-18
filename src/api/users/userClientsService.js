@@ -1,4 +1,7 @@
 const _ = require('lodash')
+const bcrypt = require('bcrypt')
+const generator = require('generate-password')
+
 const User = require('./users')
 const Clients = require('../clients/clients')
 const ContactRequests = require('./contacts')
@@ -161,4 +164,64 @@ const newContact = async (req, res, next) => {
 
 }
 
-module.exports = { clients, contacts, newContact }
+const welcomeEmailResend = async (req, res, next) => {
+
+    //Generate random password
+    const password = generator.generate({
+        length: 10,
+        numbers: true,
+        symbols: true,
+        lowercase: true,
+        uppercase: true,
+        excludeSimilarCharacters: true,
+        strict: true,
+    })
+
+    const salt = bcrypt.genSaltSync()
+    const passwordHash = bcrypt.hashSync(password, salt)
+
+    await User.findOneAndUpdate({_id: req.params.id},{
+        password: passwordHash
+        }, 
+        async (error, user) => {
+            if(error) {
+                return sendErrorsFromDB(res, error)
+            } else if (user) {
+
+                let msg = [];
+
+                user.email.forEach(email => {
+                    msg.push({
+                        to: email.value,
+                        templateId: process.env.SENDGRID_TEMPLATE_WELCOME,
+                        dynamicTemplateData: {
+                            subject: `Bem-vindo a sua conta segura`,
+                            name: user.nickname,
+                            login: user.login,
+                            password,
+                            email: email.value,
+                        }
+                    })
+                });
+        
+                sendGrid.send(msg,true)
+                .then(
+                    response => {
+                        if(!response){
+                            console.log(`User #${user.login} welcome notification error, email not sended!`)
+                        }else{
+                            console.log(`User #${user.login} welcome notification sended!`)
+                        }
+                    }
+                )  
+
+                return res.status(200).json({result: ["Welcome e-mail re-sent!"]})
+
+            }else{
+                return res.status(422).send({errors: ['User not found!']})
+            }
+    })
+
+}
+
+module.exports = { clients, contacts, newContact, welcomeEmailResend }

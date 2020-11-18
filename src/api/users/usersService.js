@@ -23,6 +23,7 @@ usersCycle.route('notifications.get', { detail: true, handler: notificationsServ
 usersCycle.route('notifications.put', { detail: true, handler: notificationsService.read })
 
 usersCycle.route('request.post', { detail: true, handler: usersClientsService.newContact })
+usersCycle.route('welcome.put', { detail: true, handler: usersClientsService.welcomeEmailResend })
 
 usersCycle.route('downloadTaskDocument.get', { detail: true, handler: tasksService.download })
 usersCycle.route('downloadTaskZipDocuments.get', { detail: true, handler: tasksService.downloadZip })
