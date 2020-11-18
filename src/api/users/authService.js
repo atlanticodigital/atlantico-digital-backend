@@ -130,7 +130,7 @@ const forgot = (req, res, next) => {
                                 dynamicTemplateData: {
                                     name: user.name,
                                     email: email.value,
-                                    link: `https://atlantico.digital/auth/recover/${token}`
+                                    link: `https://app.atlantico.digital/auth/recover/${token}`
                                 }
                             })
                         });

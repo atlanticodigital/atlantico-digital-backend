@@ -236,7 +236,7 @@ module.exports = async (id, res, deal, person, organization, products) => {
     //Return 200 if there is any error
     if(errors.length){
         let msg = {
-            to: ["agenciablackpearl@gmail.com"],
+            to: ["agenciablackpearl@gmail.com","minhaexperiencia@atlantico.digital"],
             templateId: process.env.SENDGRID_TEMPLATE_ERRORS,
             dynamicTemplateData: {
                 subject: `Falha no onboarding #${id}`,
@@ -388,7 +388,7 @@ module.exports = async (id, res, deal, person, organization, products) => {
 
         if(errors.length){
             let msg = {
-                to: ["agenciablackpearl@gmail.com"],
+                to: ["agenciablackpearl@gmail.com","minhaexperiencia@atlantico.digital"],
                 templateId: process.env.SENDGRID_TEMPLATE_ERRORS,
                 dynamicTemplateData: {
                     subject: `Pendências no onboarding #${id}`,
