@@ -382,16 +382,16 @@ const notify = (req, res, next) => {
             }
         }
 
-        email.send(msg)
-        .then(
-            response => {
-                if(!response){
-                    console.log(`Task #${id} notification error email not sended!`)
-                }else{
-                    console.log(`Task #${id} notification error sended!`)
-                }
-            }
-        )    
+        // email.send(msg)
+        // .then(
+        //     response => {
+        //         if(!response){
+        //             console.log(`Task #${id} notification error email not sended!`)
+        //         }else{
+        //             console.log(`Task #${id} notification error sended!`)
+        //         }
+        //     }
+        // )    
 
         return res.status(400).json({ message: err });
     })
