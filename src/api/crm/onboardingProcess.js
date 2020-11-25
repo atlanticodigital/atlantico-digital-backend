@@ -219,6 +219,11 @@ module.exports = async (id, res, deal, person, organization, products) => {
         errors.push('Nenhum produto vinculado ao negócio!')
     }
 
+    //Login validation
+    if(!login){
+        errors.push('Defina um ID do Usuário para o contato!')
+    }
+
     const verifyLogin = await usersCycle.findOne({login})
 
     if(await verifyLogin){
