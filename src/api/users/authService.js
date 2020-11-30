@@ -18,6 +18,8 @@ const sendErrorsFromDB = (res, dbErrors) => {
 const login = (req, res, next) => {
     const login = req.body.login || ''
     const password = req.body.password || ''
+    const device = req.body.device || null
+    const deviceId = device ? req.body.device.id || null : null || null
 
     if(!login||!password){
         return res.status(400).send({errors: ['You have entered the wrong username or password']})
@@ -33,6 +35,14 @@ const login = (req, res, next) => {
             const token = jwt.sign(user.toJSON(), process.env.AUTH_SECRET, {
                 expiresIn: "1 day"
             })
+
+            if(device&&deviceId){
+                User.findOneAndUpdate({login},{device}, async (err, user) => {
+                    if (user) {
+                        console.log(user)
+                    }
+                })
+            }
 
             LoggingModel.create({
                 user: user._id,

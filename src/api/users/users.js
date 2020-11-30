@@ -35,6 +35,10 @@ const users = new mongoose.Schema({
     created_at: { type: Date, default: Date.now },
     client: [ Number ],
     forgot_request: forgot,
+    device: {
+        name: String,
+        id: String,
+    }
 })
 
 module.exports = restful.model('Users', users)
