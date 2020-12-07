@@ -138,8 +138,12 @@ const query = (req, res, next) => {
 
 const download = (req, res, next) => {
     const id = req.query.id || null
+    const paramId = req.params.id || null
+    const queryId = req.query.user || null
 
-    User.findOne({_id: req.params.id},async (err, user) => {
+    const _id = paramId || queryId
+
+    User.findOne({_id},async (err, user) => {
         if(err) {
             return sendErrorsFromDB(res, err)
         } else if (user) {
@@ -152,7 +156,11 @@ const download = (req, res, next) => {
                         action: `Realizou um download do runrun.it: #${id}`
                     })
 
-                    return res.status(200).json({link:error.response.headers.location})
+                    if(queryId){
+                        return res.redirect(error.response.headers.location)
+                    }else{
+                        return res.status(200).json({link:error.response.headers.location})
+                    }
                 }else{
                     return res.status(400).send({errors: ['Could not download document!']})
                 }
@@ -169,8 +177,12 @@ const download = (req, res, next) => {
 
 const downloadZip = (req, res, next) => {
     const ids = req.query.ids || null
+    const paramId = req.params.id || null
+    const queryId = req.query.user || null
 
-    User.findOne({_id: req.params.id},async (err, user) => {
+    const _id = paramId || queryId
+
+    User.findOne({_id},async (err, user) => {
         if(err) {
             return sendErrorsFromDB(res, err)
         } else if (user) {
@@ -183,7 +195,12 @@ const downloadZip = (req, res, next) => {
                         action: `Realizou um download zipado do runrun.it: #${ids}`
                     })
 
-                    return res.status(200).json({link:error.response.headers.location})
+
+                    if(queryId){
+                        return res.redirect(error.response.headers.location)
+                    }else{
+                        return res.status(200).json({link:error.response.headers.location})
+                    }
                 }else{
                     return res.status(400).send({errors: ['Could not download zip!']})
                 }
