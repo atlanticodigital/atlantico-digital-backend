@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const S3 = new AWS.S3({apiVersion: '2006-03-01', region: 'sa-east-1'})
+const textract = new AWS.Textract({apiVersion: '2018-06-27', region: 'us-east-1'})
 
 const FormatBytes = require('../common/formatBytes')
 
@@ -134,6 +135,36 @@ const upload = async (path,base64data) => {
 
 }
 
+const startDocumentTextDetection = async (id,tag,path) => {
+
+    const params = {
+        DocumentLocation: { /* required */
+          S3Object: {
+            Bucket: bucketName,
+            Name: path
+          }
+        },
+        ClientRequestToken: id,
+        JobTag: tag,
+        KMSKeyId: id,
+        NotificationChannel: {
+          RoleArn: 'arn:aws:iam::734128143744:role/SNSSuccessFeedback', /* required */
+          SNSTopicArn: 'arn:aws:sns:us-east-1:734128143744:Textract' /* required */
+        },
+        OutputConfig: {
+          S3Bucket: bucketName, /* required */
+        }
+    };
+
+    console.log(params)
+
+    return textract.startDocumentTextDetection(params, function(err, data){
+        if (err) console.log(err, err.stack); // an error occurred
+        else     console.log(data);
+    })
+
+}
+
 const signedUrl = async (path, res) => {
 
     const params = {
@@ -152,4 +183,4 @@ const signedUrl = async (path, res) => {
 
 }
 
-module.exports = { list, exists, createFolder, deleteObject, upload, signedUrl }
+module.exports = { list, exists, createFolder, deleteObject, upload, signedUrl, startDocumentTextDetection }

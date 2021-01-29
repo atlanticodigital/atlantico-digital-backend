@@ -22,6 +22,7 @@ module.exports = (server) => {
 
     const DocumentService = require('../api/clients/clientDocument')
     protectedApi.get('/document/:document',DocumentService.request)
+    protectedApi.get('/drive',DocumentService.drive)
 
     // Open Api
     const openApi = express.Router()
