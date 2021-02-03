@@ -49,6 +49,10 @@ module.exports = (server) => {
     openApi.get('/tasks/downloadzip', tasksService.downloadZip)
     openApi.post('/tasks/import', tasksService.create)
 
+    const csatService = require('../api/survey/csatService')
+    openApi.post('/survey/csat', csatService.answer)
+    openApi.post('/survey/csat/:id/comment',csatService.comments)
+
     const prospectService = require('../api/users/prospectService')
     const loginPassHandler = require('../api/users/loginPassHandler')
 
