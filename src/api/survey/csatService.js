@@ -51,7 +51,7 @@ const answer = async (req, res, next) => {
                                 if(err) {
                                     return sendErrorsFromDB(res, err)
                                 } else if (record) {
-                                    return res.status(400).json(record)
+                                    return res.status(202).json(record)
                                 } else {
                         
                                     const newRecord = await Csat.create({
