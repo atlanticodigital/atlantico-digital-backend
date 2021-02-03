@@ -2,8 +2,14 @@ const restful = require('node-restful')
 const mongoose = restful.mongoose
 
 const csat = new mongoose.Schema({
-    client: mongoose.Schema.Types.ObjectId,
-    user: mongoose.Schema.Types.ObjectId,
+    client: {
+        _id: mongoose.Schema.Types.ObjectId,
+        reference: Number
+    },
+    user: {
+        _id: mongoose.Schema.Types.ObjectId,
+        name: String
+    },
     task: { type: Number, required: [true, 'Informe o id da tarefa!'] },
     answer: { 
         type: String,

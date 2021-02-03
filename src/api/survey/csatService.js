@@ -32,15 +32,15 @@ const answer = async (req, res, next) => {
         return res.status(422).send({errors: ['Task ID is required!']})
     }
 
-    User.findOne({_id:user},async (err, user) => {
+    User.findOne({_id:user},async (err, userRecord) => {
         if(err) {
             return sendErrorsFromDB(res, err)
-        } else if (user) {
+        } else if (userRecord) {
 
-            Client.findOne({_id:client},async (err, record) => {
+            Client.findOne({_id:client},async (err, clientRecord) => {
                 if(err) {
                     return sendErrorsFromDB(res, err)
-                } else if (record) {
+                } else if (clientRecord) {
         
                     Tasks.findOne({task_id:task},async (err, taskRecord) => {
                         if(err) {
@@ -55,8 +55,14 @@ const answer = async (req, res, next) => {
                                 } else {
                         
                                     const newRecord = await Csat.create({
-                                        client,
-                                        user,
+                                        client: {
+                                            _id: client,
+                                            reference: clientRecord.reference
+                                        },
+                                        user: {
+                                            _id: user,
+                                            name: userRecord.name
+                                        },
                                         task,
                                         answer
                                     })
