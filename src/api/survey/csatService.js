@@ -47,7 +47,7 @@ const answer = async (req, res, next) => {
                             return sendErrorsFromDB(res, err)
                         } else if (taskRecord) {
                 
-                            Csat.findOne({task,client,user}, async (err, record) => {
+                            Csat.findOne({task,"client._id":client,"user._id":user}, async (err, record) => {
                                 if(err) {
                                     return sendErrorsFromDB(res, err)
                                 } else if (record) {
