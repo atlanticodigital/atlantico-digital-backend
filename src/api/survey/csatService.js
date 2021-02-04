@@ -3,6 +3,7 @@ const Csat = require("./csat")
 const User = require('../users/users')
 const Client = require('../clients/clients')
 const Tasks = require('../tasks/tasks')
+const { now } = require('lodash')
 
 const sendErrorsFromDB = (res, dbErrors) => {
     const errors = []
@@ -115,4 +116,148 @@ const comments = async (req, res, next) => {
     })
 }
 
-module.exports = { answer, comments }
+const report = async (req, res, next) => {
+
+    var very_dissatisfied = 0
+    var dissatisfied = 0
+    var neutral = 0
+    var satisfied = 0
+    var very_satisfied = 0
+    var comments = []
+    var queryDate = {}
+
+    const filter = req.query.filter || null
+    const startAt = req.query.startAt || null
+    const endAt = req.query.endAt || null
+
+    if(!filter){
+        return res.status(422).send({errors: ['Filter is required!']})
+    }
+
+    if(filter=='custom'){
+
+        if(!startAt&&!endAt){
+            return res.status(422).send({errors: ['At least one date is required!']})
+        }
+
+        if(startAt==endAt||startAt&&!endAt){
+
+            const start = new Date(startAt)
+            const end = new Date(startAt)
+            end.setHours(44,59,59,999)
+    
+            queryDate = {
+                $gte: start,
+                $lte: end
+            }
+            
+        }else if(!startAt&&endAt){
+
+            const start = new Date(endAt)
+            const end = new Date(endAt)
+            end.setHours(44,59,59,999)
+    
+            queryDate = {
+                $gte: start,
+                $lte: end
+            }
+
+        }else if(startAt&&endAt){
+            const date = new Date(`${endAt}`)
+            date.setHours(44,59,59,999)
+
+            queryDate = {
+                $gte: new Date(startAt),
+                $lte: date
+            }
+        }
+
+    }
+
+    if(filter=='day'){
+
+        const start = new Date()
+        start.setHours(0,0,0,0)
+
+        const end = new Date()
+        end.setHours(23,59,59,999)
+
+        queryDate = {
+            $gte: start,
+            $lte: end
+        }
+
+    }
+
+    if(filter=='week'){
+        const date = new Date()
+        date.setDate(date.getDate() - 6)
+
+        const end = new Date()
+        end.setHours(23,59,59,999)
+
+        queryDate = {
+            $gte: date,
+            $lte: end
+        }
+    }
+
+    if(filter=='month'){
+        const date = new Date()
+        const lastDay = new Date(date.getFullYear(), date.getMonth()+1, 0).getDate()
+
+        queryDate = {
+            $gte: new Date(`${date.getFullYear()}-${date.getMonth()+1}-01`),
+            $lte: new Date(`${date.getFullYear()}-${date.getMonth()+1}-${lastDay}`)
+        }
+    }
+
+    Csat.find({ //query today up to tonight
+        answered_at: queryDate
+    }, async (err, record) => {
+        if(err) {
+            return sendErrorsFromDB(res, err)
+        } else if (record) {
+
+            record.forEach(element => {
+                
+                switch (element.answer) {
+                    case "very_dissatisfied":
+                        very_dissatisfied ++
+                        break;
+                    case "dissatisfied":
+                        dissatisfied ++
+                        break;
+                    case "neutral":
+                        neutral ++
+                        break;
+                    case "satisfied":
+                        satisfied ++
+                        break;
+                    case "very_satisfied":
+                        very_satisfied ++
+                        break;
+                }
+
+                if(element.comments){
+                    comments.push({
+                        reference: element.client.reference,
+                        user: element.user.name,
+                        data: element.answered_at,
+                        comment: element.comments,
+                        task: element.task,
+                        answer: element.answer,
+                    })
+                }
+
+            });
+           
+            return res.status(200).json({
+                very_dissatisfied,dissatisfied,neutral,satisfied,very_satisfied,comments
+            })
+        }
+    })
+
+}
+
+module.exports = { answer, comments, report }

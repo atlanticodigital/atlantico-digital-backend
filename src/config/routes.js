@@ -52,6 +52,7 @@ module.exports = (server) => {
     const csatService = require('../api/survey/csatService')
     openApi.post('/survey/csat', csatService.answer)
     openApi.post('/survey/csat/:id/comment',csatService.comments)
+    protectedApi.get('/survey/csat',csatService.report)
 
     const prospectService = require('../api/users/prospectService')
     const loginPassHandler = require('../api/users/loginPassHandler')
