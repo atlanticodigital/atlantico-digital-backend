@@ -15,7 +15,7 @@ const csat = new mongoose.Schema({
         type: String,
         enum : [ 'very_dissatisfied', 'dissatisfied', 'neutral', 'satisfied', 'very_satisfied' ]
     },
-    answered_at: { type: Date, default: Date.now() },
+    answered_at: { type: Date, default: new Date() },
     comments: { type: String, default: null },
 })
 
