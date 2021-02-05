@@ -6,7 +6,7 @@ const uploads = new mongoose.Schema({
     user: mongoose.Schema.Types.ObjectId,
     fileName: String,
     path: String,
-    uploaded_at: { type: Date, default: Date.now() }
+    uploaded_at: { type: Date, default: new Date }
 })
 
 module.exports = restful.model('uploads', uploads)
