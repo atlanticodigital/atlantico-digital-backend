@@ -8,7 +8,7 @@ const notifications = new mongoose.Schema({
     description: String,
     type: String,
     data: Object,
-    created_at: { type: Date, default: Date.now() },
+    created_at: { type: Date, default: new Date() },
     read_at: { type: Date, default: null }
 })
 

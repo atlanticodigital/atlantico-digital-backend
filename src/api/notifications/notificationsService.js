@@ -77,7 +77,7 @@ const read = (req, res, next) => {
             return sendErrorsFromDB(res, err)
         } else if (user) {
         
-            Notifications.findOneAndUpdate({_id: notification_id}, {read_at: Date.now()}, (err, notification) => {
+            Notifications.findOneAndUpdate({_id: notification_id}, {read_at: new Date()}, (err, notification) => {
                 if(err) {
                     return sendErrorsFromDB(res, err)
                 } else if (notification) {

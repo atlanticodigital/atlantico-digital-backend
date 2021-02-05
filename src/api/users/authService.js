@@ -185,7 +185,7 @@ const recover = (req, res, next) => {
     const newPassword = req.body.newPassword || ''
     const verifyPassword = req.body.verifyPassword || ''
 
-    User.findOne({'forgot_request.token': req.body.token, 'forgot_request.expires_at': {$gt: Date.now()}, 'forgot_request.recovered_at': null},
+    User.findOne({'forgot_request.token': req.body.token, 'forgot_request.expires_at': {$gt: new Date()}, 'forgot_request.recovered_at': null},
     (err, user) => {
 
         if(err) {
@@ -204,7 +204,7 @@ const recover = (req, res, next) => {
                 const passwordHash = bcrypt.hashSync(newPassword, salt)
                 
                 user.password = passwordHash
-                user.forgot_request.recovered_at = Date.now()
+                user.forgot_request.recovered_at = new Date()
                 user.save()
 
                 return res.status(200).json({ message: 'Password reset successfully.' });

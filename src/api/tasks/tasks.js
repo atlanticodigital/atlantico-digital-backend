@@ -6,7 +6,7 @@ const tasks = new mongoose.Schema({
     task_id: { type: Number, required: [true, 'Informe o id da tarefa!'] },
     response: Object,
     documents: Object,
-    created_at: { type: Date, default: Date.now() },
+    created_at: { type: Date, default: new Date() },
     closed_at: { type: Date }
 })
 

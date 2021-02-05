@@ -3,7 +3,7 @@ const mongoose = restful.mongoose
 
 const forgot = new mongoose.Schema({
     token: String,
-    expires_at: { type: Date, default: Date.now() + 86400000 },
+    expires_at: { type: Date, default: new Date() + 86400000 },
     recovered_at: { type: Date, default: null }
 })
 

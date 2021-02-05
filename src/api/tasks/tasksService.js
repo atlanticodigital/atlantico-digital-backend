@@ -272,7 +272,7 @@ const notify = (req, res, next) => {
             Tasks.findOneAndUpdate({task_id: data.task.id}, {
                 documents: data.docs,
                 response: data.task,
-                closed_at: Date.now()
+                closed_at: new Date()
             },
             (err, taskDocs) => {
                 if(err) {
@@ -284,7 +284,7 @@ const notify = (req, res, next) => {
                         task_id: data.task.id,
                         response: data.task,
                         documents: data.docs,
-                        closed_at: Date.now()
+                        closed_at: new Date()
                     })
                 }
 
