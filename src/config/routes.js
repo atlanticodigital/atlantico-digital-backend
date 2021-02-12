@@ -48,6 +48,7 @@ module.exports = (server) => {
     openApi.get('/tasks/download', tasksService.download)
     openApi.get('/tasks/downloadzip', tasksService.downloadZip)
     openApi.post('/tasks/import', tasksService.create)
+    openApi.get('/tasks/export', tasksService.exportXLS)
 
     const csatService = require('../api/survey/csatService')
     openApi.post('/survey/csat', csatService.answer)

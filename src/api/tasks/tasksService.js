@@ -505,4 +505,17 @@ const create = (req, res, next) => {
 
 }
 
-module.exports = { list, show, query, download, downloadZip, notify, search, create }
+const exportXLS = (req, res, next) => {
+
+    axios.post(`https://runrun.it/api/v1.0/tasks/export`,{}, { headers })
+        .then(response => {
+            return res.status(200).json({msg:"Exportação solicitada com sucesso!"})
+        })
+        .catch(error => {
+            console.log(error.response)
+            return res.status(400).send({errors: ['Não foi possível realizar a solicitação no momento!']})
+        })            
+
+}
+
+module.exports = { list, show, query, download, downloadZip, notify, search, create, exportXLS }
