@@ -507,7 +507,11 @@ const create = (req, res, next) => {
 
 const exportXLS = (req, res, next) => {
 
-    axios.post(`https://runrun.it/api/v1.0/tasks/export`,{}, { headers })
+    axios.post(`https://runrun.it/api/v1.0/tasks/export`,{}, { headers: {
+        'Content-Type': 'application/json',
+        'App-Key': process.env.RUNRUNIT_TOKEN,
+        'User-Token': process.env.RUNRUNIT_USER_TOKEN
+    } })
         .then(response => {
             return res.status(200).json({msg:"Exportação solicitada com sucesso!"})
         })
