@@ -179,7 +179,7 @@ const forgot = (req, res, next) => {
     
 }
 
-const passwordRegex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20})/
+const passwordRegex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[*.!@#$%^&():;<>,.?~_+-=]).{6,20})/
 
 const recover = (req, res, next) => {
     const newPassword = req.body.newPassword || ''

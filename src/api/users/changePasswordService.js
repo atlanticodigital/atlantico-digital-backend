@@ -2,7 +2,7 @@ const _ = require('lodash')
 const bcrypt = require('bcrypt')
 const User = require('./users')
 
-const passwordRegex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20})/
+const passwordRegex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[*.!@#$%^&():;<>,.?~_+-=]).{6,20})/
 
 const sendErrorsFromDB = (res, dbErrors) => {
     const errors = []

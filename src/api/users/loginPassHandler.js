@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const usersCycle = require('./users')
 
 // const emailRegex = /\S+@\S+\.\S+/
-const passwordRegex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20})/
+const passwordRegex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[*.!@#$%^&():;<>,.?~_+-=]).{6,20})/
 
 const sendErrorsFromDB = (res, dbErrors) => {
     const errors = []
