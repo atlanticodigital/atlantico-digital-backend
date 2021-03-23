@@ -20,6 +20,9 @@ module.exports = (server) => {
     const tasksTypesCycle = require('../api/tasks/tasksTypesService')
     tasksTypesCycle.register(protectedApi, '/tasks')
 
+    const npsCycle = require('../api/survey/npsService')
+    npsCycle.register(protectedApi, '/survey/nps')
+
     const DocumentService = require('../api/clients/clientDocument')
     protectedApi.get('/document/:document',DocumentService.request)
     protectedApi.get('/drive',DocumentService.drive)
@@ -54,6 +57,12 @@ module.exports = (server) => {
     openApi.post('/survey/csat', csatService.answer)
     openApi.post('/survey/csat/:id/comment',csatService.comments)
     protectedApi.get('/survey/csat',csatService.report)
+
+    const surveyNpsScoresService = require('../api/survey/surveyNpsScoresService')
+    protectedApi.post('/survey/nps/avaliation', surveyNpsScoresService.answer)
+    protectedApi.get('/survey/nps/report', surveyNpsScoresService.report)
+    protectedApi.get('/survey/nps/search', surveyNpsScoresService.search)
+    protectedApi.get('/survey/nps/list', surveyNpsScoresService.list)
 
     const prospectService = require('../api/users/prospectService')
     const loginPassHandler = require('../api/users/loginPassHandler')
