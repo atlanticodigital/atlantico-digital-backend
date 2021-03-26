@@ -135,24 +135,46 @@ const upload = async (path,base64data) => {
 
 }
 
-const startDocumentTextDetection = async (id,tag,path) => {
+const getDocumentTextDetection = async (JobId) => {
+
+    const params = {
+        JobId
+    };
+
+    const promise = new Promise(async (resolve, reject) => {
+
+        textract.getDocumentTextDetection(params, function(err, data){
+            if (err) {
+                console.log(err, err.stack); // an error occurred
+                reject(new Error("error!"));
+            } else {
+                resolve(data);
+            } 
+        })
+        
+    })
+
+    return promise
+
+}
+
+const startDocumentTextDetection = async (id,tag) => {
 
     const params = {
         DocumentLocation: { /* required */
           S3Object: {
-            Bucket: bucketName,
-            Name: path
+            Bucket: "amplify-atlanticodigitalapp-atlantico-152552-deployment",
+            Name: "700_recibosustentoministerial_012021_jordana_leticia_maicon.pdf"
           }
         },
         ClientRequestToken: id,
         JobTag: tag,
-        KMSKeyId: id,
         NotificationChannel: {
           RoleArn: 'arn:aws:iam::734128143744:role/SNSSuccessFeedback', /* required */
           SNSTopicArn: 'arn:aws:sns:us-east-1:734128143744:Textract' /* required */
         },
         OutputConfig: {
-          S3Bucket: bucketName, /* required */
+          S3Bucket: "amplify-atlanticodigitalapp-atlantico-152552-deployment", /* required */
         }
     };
 
@@ -183,4 +205,4 @@ const signedUrl = async (path, res) => {
 
 }
 
-module.exports = { list, exists, createFolder, deleteObject, upload, signedUrl, startDocumentTextDetection }
+module.exports = { list, exists, createFolder, deleteObject, upload, signedUrl, startDocumentTextDetection, getDocumentTextDetection }

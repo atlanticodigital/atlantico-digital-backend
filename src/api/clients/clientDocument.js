@@ -130,20 +130,31 @@ const getDriveById = (token) => {
 
 const drive = async (req, res, next) => {
 
+    // const result = await Bucket.startDocumentTextDetection("1234","teste")
+    Bucket.getDocumentTextDetection("2fcc7da2d954258de75ea1c287272743fb06860017357ddd23a6780ee31f11e0")
+        .then(result => {
+            return res.status(200).send({result})
+        })
+        .catch(error => {
+            return res.status(400).send({error})
+        })
+
     driveGetToken()
     .then(token => {
         console.log(token)
 
         getDriveById(token)
-        .then(list => {
+        .then(async list => {
+
+            await Bucket.startDocumentTextDetection("teste")
 
             // const items = list.map(async item => {
             //     let image = await axios.get(item["@microsoft.graph.downloadUrl"], {responseType: 'arraybuffer'});
             //     let raw = Buffer.from(image.data, 'base64');
 
-            //     // const path = `10/${item.name}`
+            //     const path = `10/${item.name}`
 
-            //     // const data = await Bucket.upload(path,raw)
+            //     const data = await Bucket.upload(path,raw)
 
             //     // console.log(data)
 

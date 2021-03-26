@@ -1,9 +1,12 @@
 const restful = require('node-restful')
 const mongoose = restful.mongoose
 
+const date = new Date()
+
+
 const forgot = new mongoose.Schema({
     token: String,
-    expires_at: { type: Date, default: new Date() + 86400000 },
+    expires_at: { type: Date, default: date.setDate(date.getDate() + 1) },
     recovered_at: { type: Date, default: null }
 })
 
