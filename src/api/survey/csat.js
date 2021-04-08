@@ -10,7 +10,11 @@ const csat = new mongoose.Schema({
         _id: mongoose.Schema.Types.ObjectId,
         name: String
     },
-    task: { type: Number, required: [true, 'Informe o id da tarefa!'] },
+    type: { 
+        type: String,
+        enum : [ 'task', 'ticket' ]
+    },
+    id: { type: Number, required: [true, 'Informe o id!'] },
     answer: { 
         type: String,
         enum : [ 'very_dissatisfied', 'dissatisfied', 'neutral', 'satisfied', 'very_satisfied' ]
