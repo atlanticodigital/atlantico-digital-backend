@@ -356,6 +356,8 @@ const notify = (req, res, next) => {
                     dynamicTemplateData: {
                         taskid: task.id,
                         email: recipient.email,
+                        clientid:client._id,
+                        userid:user._id,
                         reference: client.reference,
                         client: client.name,
                         link_zip: `https://api.atlantico.digital/oauth/tasks/downloadzip?user=${recipient.id}&ids=${doc_ids}`,

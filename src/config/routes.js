@@ -64,6 +64,9 @@ module.exports = (server) => {
     protectedApi.get('/survey/nps/search', surveyNpsScoresService.search)
     protectedApi.get('/survey/nps/list', surveyNpsScoresService.list)
 
+    const helpdeskWebhooksService = require('../api/helpdesk/webhooksService')
+    openApi.post('/helpdesk/webbook', helpdeskWebhooksService)
+
     const prospectService = require('../api/users/prospectService')
     const loginPassHandler = require('../api/users/loginPassHandler')
 
