@@ -8,6 +8,7 @@ const clientsGroup = require('./clientsGroups')
 const clientDocument = require('./clientDocument')
 
 const filesService = require('../files/filesService')
+const legacyService = require('../files/legacyService')
 
 clientsCycle.methods(['get', 'post', 'put', 'delete'])
 clientsCycle.updateOptions({ new: true, runValidators: true })
@@ -24,6 +25,7 @@ clientsCycle.route('taskDocuments.get', tasksService.query)
 clientsCycle.route('contacts.get', { detail: true, handler: usersClientsService.contacts })
 
 clientsCycle.route('filesList.get', { detail: true, handler: filesService.list })
+clientsCycle.route('legacyList.get', { detail: true, handler: legacyService.list })
 clientsCycle.route('newFolder.post', { detail: true, handler: filesService.newFolder })
 clientsCycle.route('deleteObject.delete', { detail: true, handler: filesService.deleteObject })
 clientsCycle.route('upload.post', { detail: true, handler: filesService.upload })
