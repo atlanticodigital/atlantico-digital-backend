@@ -18,8 +18,11 @@ module.exports = (req, res, next) => {
                 const login = response.data.data[process.env.PIPEDRIVE_LOGIN_KEY]
                 const connections = response.data.data[process.env.PIPEDRIVE_CONNECTION_KEY]
                 const dominioUserPass = response.data.data[process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]
-                const contaAzulUserPass = response.data.data[process.env.PIPEDRIVE_CONTA_AZUL_KEY]
                 const profile = response.data.data[process.env.PIPEDRIVE_PROFILE_KEY] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
+                const status = response.data.data[process.env.PIPEDRIVE_STATUS_KEY] // 118 ACTIVE, 119 INACTIVE
+                const birthday = response.data.data[process.env.PIPEDRIVE_BIRTHDAY_KEY]
+
+                return res.status(200).send({success: response.data.data})
 
                 axios.all([
                     axios.get(`https://api.pipedrive.com/v1/persons/search?term=${login}&api_token=${process.env.PIPEDRIVE_TOKEN}`),
@@ -38,8 +41,9 @@ module.exports = (req, res, next) => {
                                 phone: phone,
                                 [process.env.PIPEDRIVE_PROFILE_KEY]: profile,
                                 [process.env.PIPEDRIVE_CONNECTION_KEY]: connections,
-                                [process.env.PIPEDRIVE_CONTA_AZUL_KEY]: contaAzulUserPass,
-                                [process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]: dominioUserPass
+                                [process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]: dominioUserPass,
+                                [process.env.PIPEDRIVE_STATUS_KEY]: status,
+                                [process.env.PIPEDRIVE_BIRTHDAY_KEY]: birthday,
                             })
                             .then((response) => {
                                 console.log(response.data)
@@ -59,13 +63,10 @@ module.exports = (req, res, next) => {
                                 user: (dominioUserPass) ? dominioUserPass.split(":")[0] : null,
                                 pass: (dominioUserPass) ? dominioUserPass.split(":")[1] : null,
                             },
-                            conta_azul: {
-                                user: (contaAzulUserPass) ? contaAzulUserPass.split(":")[0] : null,
-                                pass: (contaAzulUserPass) ? contaAzulUserPass.split(":")[1] : null,
-                            },
                         },
                         profile: (profile) ? profile.split(",").map(item => { return profileAccess(item) }) : null,
                         client: (connections) ? connections.split(",") : null,
+                        status: (status=="118") ? true : false,
                     },
                     async (err, user) => {
     
