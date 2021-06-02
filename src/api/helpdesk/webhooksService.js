@@ -8,11 +8,16 @@ module.exports = async (req, res, next) => {
     await axios.get(`https://api.movidesk.com/public/v1/tickets?token=${process.env.MOVIDESK_TOKEN}&id=${Id}`)
     .then(async (response) => {
         const data = response.data
-        const client = data.clients[0]
+        var client = data.clients[0]
+
+        if(!client.email&&data.clients[1]){
+            client = data.clients[1]
+        }
 
         if(client||client.id||client.email){
 
             const msg = {
+                category: 'ticket',
                 to: client.email,
                 templateId: process.env.SENDGRID_TEMPLATE_TICKET_CSAT,
                 dynamicTemplateData: {
@@ -36,8 +41,9 @@ module.exports = async (req, res, next) => {
             )       
 
         }else{
-            return res.status(422).send({error: 'Client not found'})
+            return res.status(411).send({error: 'Client not found'})
         }
+
     })
     .catch(error => {
         console.log(error)
