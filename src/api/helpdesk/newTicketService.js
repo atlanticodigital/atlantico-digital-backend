@@ -78,6 +78,7 @@ module.exports = async (req, res, next) => {
                         user.email.map(email => { 
 
                             msg.push({
+                                category: 'ticket.novo',
                                 to: email.value,
                                 templateId: process.env.SENDGRID_TEMPLATE_NEWTICKET,
                                 dynamicTemplateData: {

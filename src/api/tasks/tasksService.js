@@ -351,6 +351,7 @@ const notify = (req, res, next) => {
 
             uniqueRecipients.forEach(recipient => {
                 msg.push({
+                    categories: ['tarefa.documentos',client.reference,task.id],
                     to: recipient.email,
                     templateId: process.env.SENDGRID_TEMPLATE_NEWFILES,
                     dynamicTemplateData: {

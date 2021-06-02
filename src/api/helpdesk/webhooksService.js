@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
         if(client||client.id||client.email){
 
             const msg = {
-                category: 'ticket',
+                category: 'ticket.csat',
                 to: client.email,
                 templateId: process.env.SENDGRID_TEMPLATE_TICKET_CSAT,
                 dynamicTemplateData: {

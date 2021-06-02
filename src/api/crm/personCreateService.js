@@ -111,6 +111,7 @@ module.exports = async (req, res, next) => {
 
                         email.forEach(email => {
                             msg.push({
+                                category: 'user.welcome',
                                 to: email.value,
                                 templateId: process.env.SENDGRID_TEMPLATE_WELCOME,
                                 dynamicTemplateData: {

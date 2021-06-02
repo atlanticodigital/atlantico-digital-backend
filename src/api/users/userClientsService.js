@@ -114,6 +114,7 @@ const newContact = async (req, res, next) => {
 
             user.email.forEach(email => {
                 msg.push({
+                    category: 'user.new',
                     to: email.value,
                     templateId: process.env.SENDGRID_TEMPLATE_CONTACT_NEW,
                     dynamicTemplateData: dynamicData
@@ -121,6 +122,7 @@ const newContact = async (req, res, next) => {
             })
 
             msg.push({
+                category: 'user.new',
                 to: "agenciablackpearl@gmail.com",
                 templateId: process.env.SENDGRID_TEMPLATE_CONTACT_ALERT,
                 dynamicTemplateData: dynamicData
@@ -192,6 +194,7 @@ const welcomeEmailResend = async (req, res, next) => {
 
                 user.email.forEach(email => {
                     msg.push({
+                        category: 'user.welcome',
                         to: email.value,
                         templateId: process.env.SENDGRID_TEMPLATE_WELCOME,
                         dynamicTemplateData: {

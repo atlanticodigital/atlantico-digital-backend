@@ -241,6 +241,7 @@ module.exports = async (id, res, deal, person, organization, products) => {
     //Return 200 if there is any error
     if(errors.length){
         let msg = {
+            category: 'onboarding.falha',
             to: ["agenciablackpearl@gmail.com","minhaexperiencia@atlantico.digital"],
             templateId: process.env.SENDGRID_TEMPLATE_ERRORS,
             dynamicTemplateData: {
@@ -362,6 +363,7 @@ module.exports = async (id, res, deal, person, organization, products) => {
 
             email.forEach(email => {
                 msg.push({
+                    category: 'onboarding.welcome',
                     to: email.value,
                     templateId: process.env.SENDGRID_TEMPLATE_WELCOME,
                     dynamicTemplateData: {
@@ -393,6 +395,7 @@ module.exports = async (id, res, deal, person, organization, products) => {
 
         if(errors.length){
             let msg = {
+                category: 'onboarding.pendencias',
                 to: ["agenciablackpearl@gmail.com","minhaexperiencia@atlantico.digital"],
                 templateId: process.env.SENDGRID_TEMPLATE_ERRORS,
                 dynamicTemplateData: {

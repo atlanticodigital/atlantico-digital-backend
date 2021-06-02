@@ -135,6 +135,7 @@ const forgot = (req, res, next) => {
 
                         user.email.forEach(email => {
                             msg.push({
+                                category: 'user.recover',
                                 to: email.value,
                                 templateId: process.env.SENDGRID_TEMPLATE_RECOVER,
                                 dynamicTemplateData: {
