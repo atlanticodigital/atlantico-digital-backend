@@ -13,10 +13,10 @@ module.exports = async (req, res, next) => {
         if(client||client.id||client.email){
 
             const msg = {
-                to: "agenciablackpearl@gmail.com",
+                to: client.email,
                 templateId: process.env.SENDGRID_TEMPLATE_TICKET_CSAT,
                 dynamicTemplateData: {
-                    email: "agenciablackpearl@gmail.com",
+                    email: client.email,
                     clientid:0,
                     userid:0,
                     title: Subject,
