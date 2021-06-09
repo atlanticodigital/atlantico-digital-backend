@@ -24,7 +24,9 @@
     "lodash": "^4.17.20",
     "mongoose": "^5.11.13",
     "mongoose-paginate": "^5.0.3",
+    "mysql2": "^2.2.5",
     "node-restful": "^0.2.6",
+    "pipedrive": "^11.0.0",
     "pm2": "^4.5.1",
     "qs": "^6.9.6"
   },

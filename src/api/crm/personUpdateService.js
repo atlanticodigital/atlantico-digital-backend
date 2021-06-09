@@ -22,8 +22,6 @@ module.exports = (req, res, next) => {
                 const status = response.data.data[process.env.PIPEDRIVE_STATUS_KEY] // 118 ACTIVE, 119 INACTIVE
                 const birthday = response.data.data[process.env.PIPEDRIVE_BIRTHDAY_KEY]
 
-                return res.status(200).send({success: response.data.data})
-
                 axios.all([
                     axios.get(`https://api.pipedrive.com/v1/persons/search?term=${login}&api_token=${process.env.PIPEDRIVE_TOKEN}`),
                 ])

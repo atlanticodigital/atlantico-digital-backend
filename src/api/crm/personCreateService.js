@@ -10,7 +10,7 @@ const movidesk = async (data) => {
 
     const connections = (data.connections) ? data.connections.split(",").map(connect => {
             return {
-                "id": connect,
+                "id": ("0000" + connect).slice(-4),
                 "forceChildrenToHaveSomeAgreement": false,
             }
         }) : {}

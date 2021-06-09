@@ -9,6 +9,7 @@ const clients = new mongoose.Schema({
     status: { type: Boolean, default: true },
     payroll: { type: Boolean, default: true },
     runrunit_id: Number,
+    company_id: Number,
     runrunit_projects: [ Number ],
     iugu_id: String,
     group_key: String,
