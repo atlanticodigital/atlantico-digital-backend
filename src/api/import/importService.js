@@ -1,6 +1,7 @@
 const pipedrive = require('pipedrive')
 const axios = require('axios')
 const clientsCycle = require('../clients/clients')
+const profileAccess = require('../common/profileAccess')
 
 pipedrive.Configuration.apiToken = process.env.PIPEDRIVE_TOKEN
 
@@ -272,5 +273,84 @@ const updateMovideskCompany = async (req, res, next) => {
 
 }
 
+const person = async (req, res, next) => {
+    const controller = pipedrive.PersonsController
+    var input = {}
+        // input['userId'] = 58
+        // input['filterId'] = 58
+        // input['firstChar'] = first_char
+        input['start'] = 0
+        input['limit'] = 1000
+        // input['sort'] = 'sort'
 
-module.exports = {company,updateCompany,updateIuguCompany,updateMovideskCompany}
+    controller.getAllPersons(input, function(error,response,context) {
+
+        var filtered = response.data
+            // filtered = filtered.filter((record)=>{return !record["6b376de2db924d3d880186573f66b1d72ab3f2b1"]})
+            // filtered = filtered.filter((record)=>{return record.name.includes("ALIANCA PRO EVANGELIZACAO DAS CRIANCAS")})
+
+
+        const result = filtered.map((record)=>{
+
+            const dominioUserPass = record[process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]
+            const status = record[process.env.PIPEDRIVE_STATUS_KEY]
+            const profile = record[process.env.PIPEDRIVE_PROFILE_KEY] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
+            const connections = record[process.env.PIPEDRIVE_CONNECTION_KEY]
+
+            return {
+                name: record.name,
+                nickname: record.first_name,
+                login: record[process.env.PIPEDRIVE_LOGIN_KEY],
+                is_admin: false,
+                email: record.email,
+                phone: record.phone,
+                passwords: {
+                    dominio: {
+                        user: (dominioUserPass&&dominioUserPass.includes(":")) ? dominioUserPass.split(":")[0] : null,
+                        pass: (dominioUserPass&&dominioUserPass.includes(":")) ? dominioUserPass.split(":")[1] : null,
+                    }
+                },
+                agreed: true,
+                status: (status=="118") ? true : false,
+                profile: (profile) ? profile.split(",").map(item => { return profileAccess(item) }) : null,
+                client: (connections) ? connections.split(",") : null,
+            }
+        })
+
+        var exists = 0
+
+        // result.forEach(async element => {
+
+        //     const client = await clientsCycle.findOne({reference:element.reference})
+
+        //     if(!client){
+        //         console.log(`inserir: ${element.name}`)
+
+        //             element.document = '00.000.000/0000-00'
+
+        //             clientsCycle.create(element)
+        //             .catch(error => {
+        //                 console.log(error)
+        //             })
+
+        //     }else{
+        //         exists ++;
+        //         console.log(`já existe: ${element.name}`)
+
+        //         clientsCycle.findOneAndUpdate({reference:element.reference}, element)
+        //         .catch(error => {
+        //             console.log(error)
+        //         })
+
+        //         console.log(exists)
+        //     }
+
+        // });
+
+        return res.status(200).send({total: result.length,result})
+
+    })
+
+}
+
+module.exports = {company,updateCompany,updateIuguCompany,updateMovideskCompany,person}

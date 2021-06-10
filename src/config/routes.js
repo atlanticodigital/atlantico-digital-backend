@@ -67,11 +67,12 @@ module.exports = (server) => {
     const helpdeskWebhooksService = require('../api/helpdesk/webhooksService')
     openApi.post('/helpdesk/webbook', helpdeskWebhooksService)
 
-    // const importService = require('../api/import/importService')
+    const importService = require('../api/import/importService')
     // openApi.get('/import/company', importService.company)
     // openApi.get('/import/updateCompany', importService.updateCompany)
     // openApi.get('/import/updateIuguCompany', importService.updateIuguCompany)
     // openApi.get('/import/updateMovideskCompany', importService.updateMovideskCompany)
+    // openApi.get('/import/person', importService.person)
 
     const prospectService = require('../api/users/prospectService')
     const loginPassHandler = require('../api/users/loginPassHandler')
