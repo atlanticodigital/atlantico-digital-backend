@@ -51,7 +51,8 @@ module.exports = async (req, res, next) => {
                 const dominioUserPass = response.data.data[process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]
                 const contaAzulUserPass = response.data.data[process.env.PIPEDRIVE_CONTA_AZUL_KEY]
                 const profile = response.data.data[process.env.PIPEDRIVE_PROFILE_KEY] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
-
+                const status = response.data.data[process.env.PIPEDRIVE_STATUS_KEY] // 118 ACTIVE, 119 INACTIVE
+                
                 usersCycle.findOne({login}, async (err, user) => {
     
                     if(err) {
@@ -102,9 +103,9 @@ module.exports = async (req, res, next) => {
                                 },
                             },
                             agreed: true,
-                            status: true,
+                            status: (status=="118") ? true : false,
                             profile: (profile) ? profile.split(",").map(item => { return profileAccess(item) }) : null,
-                            client: (connections) ? connections.split(",") : null,
+                            client: (connections) ? connections.split(",").map((item)=>{return parseInt(item)}).filter((id)=>{return id}) : 0,
                         })
 
                         let msg = [];

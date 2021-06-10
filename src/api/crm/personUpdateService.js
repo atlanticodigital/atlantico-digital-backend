@@ -29,26 +29,26 @@ module.exports = (req, res, next) => {
 
                     const persons = pipedrive.data.data.items.filter( person => person.item.custom_fields.includes(login) ).map((person) => { return person.item })
 
-                    // //Atualiza primeiro no Pipedrive
-                    // persons.forEach(person => {
-                    //     if(person.id != id) {
-                    //         //Chamada axios para enviar alterações
-                    //         axios.put(`https://api.pipedrive.com/v1/persons/${person.id}?api_token=${process.env.PIPEDRIVE_TOKEN}`, {
-                    //             name: name,
-                    //             email: email,
-                    //             phone: phone,
-                    //             [process.env.PIPEDRIVE_PROFILE_KEY]: profile,
-                    //             [process.env.PIPEDRIVE_CONNECTION_KEY]: connections,
-                    //             [process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]: dominioUserPass,
-                    //             [process.env.PIPEDRIVE_STATUS_KEY]: status,
-                    //             [process.env.PIPEDRIVE_BIRTHDAY_KEY]: birthday,
-                    //         })
-                    //         .then((response) => {
-                    //             console.log(response.data)
-                    //         })
+                    //Atualiza primeiro no Pipedrive
+                    persons.forEach(person => {
+                        if(person.id != id) {
+                            //Chamada axios para enviar alterações
+                            axios.put(`https://api.pipedrive.com/v1/persons/${person.id}?api_token=${process.env.PIPEDRIVE_TOKEN}`, {
+                                name: name,
+                                email: email,
+                                phone: phone,
+                                [process.env.PIPEDRIVE_PROFILE_KEY]: profile,
+                                [process.env.PIPEDRIVE_CONNECTION_KEY]: connections,
+                                [process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]: dominioUserPass,
+                                [process.env.PIPEDRIVE_STATUS_KEY]: status,
+                                [process.env.PIPEDRIVE_BIRTHDAY_KEY]: birthday,
+                            })
+                            .then((response) => {
+                                console.log(response.data)
+                            })
 
-                    //     }
-                    // })
+                        }
+                    })
 
                     //Atualiza no AD e retorna o usuário
                     usersCycle.findOneAndUpdate({login: login}, {
@@ -63,7 +63,7 @@ module.exports = (req, res, next) => {
                             },
                         },
                         profile: (profile) ? profile.split(",").map(item => { return profileAccess(item) }) : null,
-                        client: (connections) ? connections.split(",") : null,
+                        client: (connections) ? connections.split(",").map((item)=>{return parseInt(item)}).filter((id)=>{return id}) : 0,
                         status: (status=="118") ? true : false,
                     },
                     async (err, user) => {

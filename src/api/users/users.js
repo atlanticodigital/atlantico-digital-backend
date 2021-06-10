@@ -14,7 +14,7 @@ const users = new mongoose.Schema({
     name: { type: String, required: [true, 'Informe o nome do usuário!'] },
     nickname: { type: String, required: false },
     login: { type: String, unique: true, required: [true, 'Informe o login do usuário!'], dropDups: true },
-    password: { type: String, min: 6, max: 12, required: [true, 'Informe a senha do usuário!'] },
+    password: { type: String, min: 6, max: 12 },
     is_admin: { type: Boolean, default: false },
     email: [ Object ],
     phone: [ Object ],
