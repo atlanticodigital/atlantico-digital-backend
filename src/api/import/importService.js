@@ -295,7 +295,7 @@ const person = async (req, res, next) => {
             const dominioUserPass = record[process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]
             const status = record[process.env.PIPEDRIVE_STATUS_KEY]
             const profile = record[process.env.PIPEDRIVE_PROFILE_KEY] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
-            const connections = record[process.env.PIPEDRIVE_CONNECTION_KEY]
+            var connections = record[process.env.PIPEDRIVE_CONNECTION_KEY]
 
             return {
                 name: record.name,
@@ -313,7 +313,7 @@ const person = async (req, res, next) => {
                 agreed: true,
                 status: (status=="118") ? true : false,
                 profile: (profile) ? profile.split(",").map(item => { return profileAccess(item) }) : null,
-                client: (connections) ? connections.split(",") : null,
+                client: (connections) ? connections.split(",").map((item)=>{return parseInt(item)}) : null
             }
         })
 
