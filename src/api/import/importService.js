@@ -2,7 +2,12 @@ const pipedrive = require('pipedrive')
 const axios = require('axios')
 const clientsCycle = require('../clients/clients')
 const usersCycle = require('../users/users')
+const sendGrid = require('../common/sendGrid')
 const profileAccess = require('../common/profileAccess')
+const bcrypt = require('bcrypt')
+const generator = require('generate-password')
+const csv = require('csv-parser')
+const fs = require('fs')
 
 pipedrive.Configuration.apiToken = process.env.PIPEDRIVE_TOKEN
 
@@ -355,4 +360,76 @@ const person = async (req, res, next) => {
 
 }
 
-module.exports = {company,updateCompany,updateIuguCompany,updateMovideskCompany,person}
+const sendWelcome = async (req, res, next) => {
+
+    let msg = [];
+
+    usersCycle.find({openPassword: { $exists: true }})
+    .then(async users => {
+
+        users.forEach(async user => {
+            
+            user.email.forEach(email => {
+                msg.push({
+                    category: 'user.welcome',
+                    to: email.value.replace("/","").trim(),
+                    templateId: process.env.SENDGRID_TEMPLATE_WELCOME,
+                    dynamicTemplateData: {
+                        subject: `Bem-vindo a sua conta segura`,
+                        name: user.nickname,
+                        login: user.login,
+                        password: user.openPassword,
+                        email: email.value.replace("/","").trim(),
+                    }
+                })
+            });
+
+        });
+
+        // sendGrid.send(msg,true)
+        // .then(
+        //     response => {
+        //         if(!response){
+        //             console.log(`Welcome notification error, email not sended!`)
+        //         }else{
+        //             console.log(`Welcome notification sended!`)
+        //         }
+        //     }
+        // )  
+
+        return res.status(200).send({total: users.length,msg})
+    })
+
+}
+
+const usersUpdateConnections = async (req, res, next) => {
+
+    // fs.createReadStream('users.csv')
+    //     .pipe(csv())
+    //     .on('data', (row)=>{
+    //         console.log(row.reference)
+
+    //         usersCycle.findOneAndUpdate({login: row.login}, {
+    //             client: [row.reference],
+    //         },
+    //         async (err, user) => {
+
+    //             if(err) {
+    //                 console.log(err)
+    //             } else if (user) {
+    //                 console.log(`atualizado`)
+    //             }
+        
+    //         })
+
+    //     })
+    //     .on('end', () => {
+    //         console.log("Csv lido")
+    //     })
+
+    return res.status(200).send({total: "ok"})
+
+
+}
+
+module.exports = {company,updateCompany,updateIuguCompany,updateMovideskCompany,person,sendWelcome,usersUpdateConnections}
