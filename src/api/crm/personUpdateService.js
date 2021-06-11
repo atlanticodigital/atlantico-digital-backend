@@ -64,7 +64,7 @@ module.exports = (req, res, next) => {
                         },
                         profile: (profile) ? profile.split(",").map(item => { return profileAccess(item) }) : null,
                         client: (connections) ? connections.split(",").map((item)=>{return parseInt(item)}).filter((id)=>{return id}) : 0,
-                        status: (status=="118") ? true : false,
+                        status: (status=="118") ? false : true,
                     },
                     async (err, user) => {
     
