@@ -47,7 +47,7 @@ const getDrive = (token,reference,itemId=null) => {
         'Authorization': `Bearer ${token}`
     }
 
-    const http = (itemId) ? `/items/${itemId}/children` : `/root:/General/${reference}:/children`
+    const http = (itemId) ? `/items/${itemId}/children` : `/root:/General/Clientes/${reference}:/children`
 
     const promise = new Promise(async (resolve, reject) => {
 
