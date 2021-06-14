@@ -5,6 +5,8 @@ module.exports = async (req, res, next) => {
     const Id = req.body.Id
     const Subject = req.body.Subject
 
+    console.log(`Ticket #${Id} finalizado, enviar pesquisa`)
+
     await axios.get(`https://api.movidesk.com/public/v1/tickets?token=${process.env.MOVIDESK_TOKEN}&id=${Id}`)
     .then(async (response) => {
         const data = response.data
