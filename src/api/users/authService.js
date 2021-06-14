@@ -25,6 +25,8 @@ const login = (req, res, next) => {
         return res.status(400).send({errors: ['You have entered the wrong username or password']})
     }
 
+    console.log(`Tentativa de login: ${login}`)
+
     User.findOne({login}, async (err, user) => {
         if(err) {
             return sendErrorsFromDB(res, err)
