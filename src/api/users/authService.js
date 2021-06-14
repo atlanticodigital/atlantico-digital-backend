@@ -95,7 +95,7 @@ const forgot = (req, res, next) => {
         function(done) {
             const login = req.body.login || ''
 
-            User.findOne({login}, (err, user) => {
+            User.findOne({login, status: true}, (err, user) => {
                 if (user) {
                     done(err, user);
                 } else {
