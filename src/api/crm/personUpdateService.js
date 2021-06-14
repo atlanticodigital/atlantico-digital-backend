@@ -19,11 +19,8 @@ module.exports = (req, res, next) => {
                 const connections = response.data.data[process.env.PIPEDRIVE_CONNECTION_KEY]
                 const dominioUserPass = response.data.data[process.env.PIPEDRIVE_DOMINIO_ATENDIMENTO_KEY]
                 const profile = response.data.data[process.env.PIPEDRIVE_PROFILE_KEY] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
-                const userStatus = response.data.data[process.env.PIPEDRIVE_STATUS_KEY] // 118 ACTIVE, 119 INACTIVE
+                const status = response.data.data[process.env.PIPEDRIVE_STATUS_KEY] // 118 ACTIVE, 119 INACTIVE
                 const birthday = response.data.data[process.env.PIPEDRIVE_BIRTHDAY_KEY]
-                
-                console.log(userStatus)
-                console.log((parseInt(userStatus)==118))
 
                 // return res.status(200).send({status:(parseInt(status)==118),data:response.data.data})
 
@@ -75,7 +72,7 @@ module.exports = (req, res, next) => {
                     },
                     profile: (profile) ? profile.split(",").map(item => { return profileAccess(item) }) : null,
                     client: (connections) ? connections.split(",").map((item)=>{return parseInt(item)}).filter((id)=>{return id}) : 0,
-                    status: (parseInt(userStatus)==118),
+                    status: (parseInt(status)==118),
                 },
                 async (err, user) => {
 
