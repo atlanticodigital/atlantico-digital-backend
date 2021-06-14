@@ -228,8 +228,9 @@ const notify = (req, res, next) => {
                 .then((task) => {
                     if(!task.data.attachments_count){
                         done(`Tarefa #${id} não possui anexos para notificação!`)
+                    }else{
+                        done(null,task.data)
                     }
-                    done(null,task.data)
                 })
                 .catch(error => {
                     done(`Tarefa #${id} não foi encontrada no runrun.it!`)
