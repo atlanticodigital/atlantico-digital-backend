@@ -16,7 +16,7 @@ const sendErrorsFromDB = (res, dbErrors) => {
 }
 
 const login = (req, res, next) => {
-    const login = req.body.login || ''
+    const login = req.body.login.trim() || ''
     const password = req.body.password || ''
     const device = req.body.device || null
     const deviceId = device ? req.body.device.id || null : null || null
