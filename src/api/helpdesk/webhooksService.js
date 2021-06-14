@@ -16,7 +16,11 @@ module.exports = async (req, res, next) => {
             client = data.clients[1]
         }
 
-        if(client||client.id||client.email){
+        if(!client.email&&data.clients[0]&&data.clients[0].organization.email){
+            client.email = data.clients[0].organization.email
+        }
+
+        if(client&&client.id&&client.email&&data.subject){
 
             const msg = {
                 category: 'ticket.csat',
@@ -26,7 +30,7 @@ module.exports = async (req, res, next) => {
                     email: client.email,
                     clientid:0,
                     userid:0,
-                    title: Subject,
+                    title: data.subject,
                     id: Id,
                 }
             }
@@ -37,13 +41,15 @@ module.exports = async (req, res, next) => {
                     if(!response){
                         return res.status(422).send({error: 'E-mail not sended'})
                     }else{
-                        return res.status(200).send(data)
+                        return res.status(200).send(msg)
                     }
                 }
-            )       
+            )    
+
+            return res.status(200).send({msg})   
 
         }else{
-            return res.status(411).send({error: 'Client not found'})
+            return res.status(411).send({error: 'Client or e-mail not found'})
         }
 
     })
@@ -51,7 +57,5 @@ module.exports = async (req, res, next) => {
         console.log(error)
         return res.status(400).send(error)
     })
-
-    // return res.status(200).send({Id, Subject})
 
 }
