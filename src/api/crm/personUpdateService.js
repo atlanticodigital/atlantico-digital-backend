@@ -22,6 +22,8 @@ module.exports = (req, res, next) => {
                 const status = response.data.data[process.env.PIPEDRIVE_STATUS_KEY] // 118 ACTIVE, 119 INACTIVE
                 const birthday = response.data.data[process.env.PIPEDRIVE_BIRTHDAY_KEY]
 
+                // return res.status(200).send({status:(parseInt(status)==118),data:response.data.data})
+
                 // axios.all([
                 //     axios.get(`https://api.pipedrive.com/v1/persons/search?term=${login}&api_token=${process.env.PIPEDRIVE_TOKEN}`),
                 // ])
@@ -70,7 +72,7 @@ module.exports = (req, res, next) => {
                     },
                     profile: (profile) ? profile.split(",").map(item => { return profileAccess(item) }) : null,
                     client: (connections) ? connections.split(",").map((item)=>{return parseInt(item)}).filter((id)=>{return id}) : 0,
-                    status: (status=="118"),
+                    status: (parseInt(status)==118),
                 },
                 async (err, user) => {
 
