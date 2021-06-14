@@ -21,6 +21,8 @@ module.exports = (req, res, next) => {
                 const profile = response.data.data[process.env.PIPEDRIVE_PROFILE_KEY] // 95 ADMIN, 96 FINANC, 97 HR, 98 FTAX
                 const status = response.data.data[process.env.PIPEDRIVE_STATUS_KEY] // 118 ACTIVE, 119 INACTIVE
                 const birthday = response.data.data[process.env.PIPEDRIVE_BIRTHDAY_KEY]
+                
+                console.log(response.data.data)
 
                 // return res.status(200).send({status:(parseInt(status)==118),data:response.data.data})
 
