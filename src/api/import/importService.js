@@ -502,4 +502,18 @@ const usersUpdateBlocked = async (req, res, next) => {
 
 }
 
-module.exports = {company,updateCompany,updateIuguCompany,updateMovideskCompany,person,sendWelcome,usersUpdateConnections,setStatus,usersUpdateBlocked}
+const updateMovideskPersons = async (req, res, next) => {
+
+    await axios.get(`https://api.movidesk.com/public/v1/persons?token=${process.env.MOVIDESK_TOKEN}&$filter=personType eq 1`)
+    .then(response => {
+        return res.status(200).send({total: response.data.length,data: response.data})
+        console.log(response.data)
+    })
+    .catch(error => {
+        return res.status(400).send({error})
+        console.log(error)
+    })
+
+}
+
+module.exports = {company,updateCompany,updateIuguCompany,updateMovideskCompany,person,sendWelcome,usersUpdateConnections,setStatus,usersUpdateBlocked,updateMovideskPersons}

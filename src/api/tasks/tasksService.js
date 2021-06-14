@@ -218,6 +218,8 @@ const downloadZip = (req, res, next) => {
 const notify = (req, res, next) => {
     const id = req.body.data.task.id
 
+    console.log(`Tarefa #${id} entregue no runrun.it`)
+
     async.waterfall([
         function (done) {
             const event = req.body.event
