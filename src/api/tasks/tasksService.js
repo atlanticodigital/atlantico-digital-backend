@@ -308,7 +308,7 @@ const notify = (req, res, next) => {
         },
         function (task,client,docs,type,done) {
 
-            User.find({client: client.reference, $or: [{ profile: type.profile }, { profile: "ADMIN" }]},
+            User.find({client: client.reference, status: true, $or: [{ profile: type.profile }, { profile: "ADMIN" }]},
             (err, clients) => {
                 if(err) {
                     done('Erro ao localizar contatos para notificação no Atlântico Digital!')

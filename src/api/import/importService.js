@@ -402,6 +402,35 @@ const sendWelcome = async (req, res, next) => {
 
 }
 
+const setStatus = async (req, res, next) => {
+
+    let msg = [];
+
+    usersCycle.find({status: false})
+    .then(async users => {
+
+        users.forEach(async user => {
+            
+            // usersCycle.findOneAndUpdate({login: user.login}, {
+            //     status: true,
+            //     },
+            //     async (err, user) => {
+
+            //         if(err) {
+            //         console.log(err)
+            //         } else if (user) {
+            //         console.log(`atualizado`)
+            //         }
+
+            // })
+
+        });
+
+        return res.status(200).send({total: users.length})
+    })
+
+}
+
 const usersUpdateConnections = async (req, res, next) => {
 
     // fs.createReadStream('users.csv')
@@ -432,4 +461,4 @@ const usersUpdateConnections = async (req, res, next) => {
 
 }
 
-module.exports = {company,updateCompany,updateIuguCompany,updateMovideskCompany,person,sendWelcome,usersUpdateConnections}
+module.exports = {company,updateCompany,updateIuguCompany,updateMovideskCompany,person,sendWelcome,usersUpdateConnections,setStatus}

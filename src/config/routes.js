@@ -75,6 +75,7 @@ module.exports = (server) => {
     // openApi.get('/import/person', importService.person)
     // openApi.get('/import/person/welcome', importService.sendWelcome)
     // openApi.get('/import/usersUpdateConnections', importService.usersUpdateConnections)
+    // openApi.get('/import/setStatus', importService.setStatus)
 
     const prospectService = require('../api/users/prospectService')
     const loginPassHandler = require('../api/users/loginPassHandler')
