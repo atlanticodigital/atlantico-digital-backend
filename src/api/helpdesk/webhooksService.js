@@ -46,8 +46,6 @@ module.exports = async (req, res, next) => {
                 }
             )    
 
-            return res.status(200).send({msg})   
-
         }else{
             return res.status(411).send({error: 'Client or e-mail not found'})
         }
@@ -57,5 +55,7 @@ module.exports = async (req, res, next) => {
         console.log(error)
         return res.status(400).send(error)
     })
+
+    // return res.status(200).send({msg})   
 
 }
