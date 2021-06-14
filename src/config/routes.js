@@ -67,7 +67,7 @@ module.exports = (server) => {
     const helpdeskWebhooksService = require('../api/helpdesk/webhooksService')
     openApi.post('/helpdesk/webbook', helpdeskWebhooksService)
 
-    // const importService = require('../api/import/importService')
+    const importService = require('../api/import/importService')
     // openApi.get('/import/company', importService.company)
     // openApi.get('/import/updateCompany', importService.updateCompany)
     // openApi.get('/import/updateIuguCompany', importService.updateIuguCompany)
@@ -76,6 +76,7 @@ module.exports = (server) => {
     // openApi.get('/import/person/welcome', importService.sendWelcome)
     // openApi.get('/import/usersUpdateConnections', importService.usersUpdateConnections)
     // openApi.get('/import/setStatus', importService.setStatus)
+    openApi.get('/import/usersUpdateBlocked', importService.usersUpdateBlocked)
 
     const prospectService = require('../api/users/prospectService')
     const loginPassHandler = require('../api/users/loginPassHandler')

@@ -461,4 +461,45 @@ const usersUpdateConnections = async (req, res, next) => {
 
 }
 
-module.exports = {company,updateCompany,updateIuguCompany,updateMovideskCompany,person,sendWelcome,usersUpdateConnections,setStatus}
+const usersUpdateBlocked = async (req, res, next) => {
+
+    var cc = 0
+
+    // fs.createReadStream('inativos.csv')
+    //     .pipe(csv())
+    //     .on('data', (row)=>{
+
+    //         console.log(row.login)
+    //         cc++
+    //         console.log(cc)
+
+    //         usersCycle.findOneAndUpdate({login: row.login}, {
+    //             status: false,
+    //         },
+    //         async (err, user) => {
+
+    //             if(err) {
+    //                 console.log(err)
+    //             } else if (user) {
+    //                 console.log(`inativado`)
+    //             }
+        
+    //         })
+
+    //     })
+    //     .on('end', () => {
+    //         console.log("Csv lido")
+    //     })
+
+    usersCycle.find({status: false})
+    .then(async users => {
+
+        return res.status(200).send({total: users.length})
+    })
+
+    // return res.status(200).send({total: cc})
+
+
+}
+
+module.exports = {company,updateCompany,updateIuguCompany,updateMovideskCompany,person,sendWelcome,usersUpdateConnections,setStatus,usersUpdateBlocked}
