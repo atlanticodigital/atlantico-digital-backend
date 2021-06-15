@@ -367,24 +367,30 @@ const sendWelcome = async (req, res, next) => {
     usersCycle.find({openPassword: { $exists: true }})
     .then(async users => {
 
-        users.forEach(async user => {
-            
-            user.email.forEach(email => {
-                msg.push({
-                    category: 'user.welcome',
-                    to: email.value.replace("/","").trim(),
-                    templateId: process.env.SENDGRID_TEMPLATE_WELCOME,
-                    dynamicTemplateData: {
-                        subject: `Bem-vindo a sua conta segura`,
-                        name: user.nickname,
-                        login: user.login,
-                        password: user.openPassword,
-                        email: email.value.replace("/","").trim(),
-                    }
-                })
-            });
+        const result = users.map((user)=>{
+            return {
+                id: user.name,
+                login: user.login,
+                openpassword: user.openPassword,
+            }
+        })
 
-        });
+        // users.forEach(async user => {
+            
+        //     user.email.forEach(email => {
+        //         msg.push({
+        //             category: 'user.welcome',
+        //             to: email.value.replace("/","").trim(),
+        //             templateId: process.env.SENDGRID_TEMPLATE_WELCOME,
+        //             dynamicTemplateData: {
+        //                 subject: `Bem-vindo a sua conta segura`,
+        //                 name: user.nickname,
+        //                 login: user.login,
+        //                 password: user.openPassword,
+        //                 email: email.value.replace("/","").trim(),
+        //             }
+        //         })
+        //     });
 
         // sendGrid.send(msg,true)
         // .then(
@@ -397,7 +403,7 @@ const sendWelcome = async (req, res, next) => {
         //     }
         // )  
 
-        return res.status(200).send({total: users.length,msg})
+        return res.status(200).send({total: users.length,result})
     })
 
 }
