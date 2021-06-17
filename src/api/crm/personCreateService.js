@@ -110,31 +110,33 @@ module.exports = async (req, res, next) => {
 
                         let msg = [];
 
-                        email.forEach(email => {
-                            msg.push({
-                                category: 'user.welcome',
-                                to: email.value,
-                                templateId: process.env.SENDGRID_TEMPLATE_WELCOME,
-                                dynamicTemplateData: {
-                                    subject: `Bem-vindo a sua conta segura`,
-                                    name: first_name,
-                                    login,
-                                    password,
-                                    email: email.value,
+                        if((parseInt(status)==118)){
+                            email.forEach(email => {
+                                msg.push({
+                                    category: 'user.welcome',
+                                    to: email.value,
+                                    templateId: process.env.SENDGRID_TEMPLATE_WELCOME,
+                                    dynamicTemplateData: {
+                                        subject: `Bem-vindo a sua conta segura`,
+                                        name: first_name,
+                                        login,
+                                        password,
+                                        email: email.value,
+                                    }
+                                })
+                            });
+                    
+                            sendGrid.send(msg,true)
+                            .then(
+                                response => {
+                                    if(!response){
+                                        console.log(`User #${id} welcome notification error, email not sended!`)
+                                    }else{
+                                        console.log(`User #${id} welcome notification sended!`)
+                                    }
                                 }
-                            })
-                        });
-                
-                        sendGrid.send(msg,true)
-                        .then(
-                            response => {
-                                if(!response){
-                                    console.log(`User #${id} welcome notification error, email not sended!`)
-                                }else{
-                                    console.log(`User #${id} welcome notification sended!`)
-                                }
-                            }
-                        )  
+                            )  
+                        }
                         
                         return res.status(200).send({success: ['Person created'], msg})
 

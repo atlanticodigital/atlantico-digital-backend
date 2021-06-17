@@ -395,7 +395,7 @@ const notify = (req, res, next) => {
         console.log(err)
 
         let msg = {
-            to: ["agenciablackpearl@gmail.com"],
+            to: ["agenciablackpearl@gmail.com","minhaexperiencia@atlantico.digital"],
             templateId: process.env.SENDGRID_TEMPLATE_ERRORS,
             dynamicTemplateData: {
                 subject: `Cliente da tarefa #${id} não foi notificado`,

@@ -497,10 +497,18 @@ const usersUpdateBlocked = async (req, res, next) => {
     //         console.log("Csv lido")
     //     })
 
-    usersCycle.find({status: false})
+    usersCycle.find({openPassword: { $exists: true }})
     .then(async users => {
 
-        return res.status(200).send({total: users.length})
+        const result = users.map((user)=>{
+            return {
+                nome: user.name,
+                login: user.login,
+                id: user.client
+            }
+        })
+
+        return res.status(200).send({total: users.length,result})
     })
 
     // return res.status(200).send({total: cc})
@@ -510,9 +518,59 @@ const usersUpdateBlocked = async (req, res, next) => {
 
 const updateMovideskPersons = async (req, res, next) => {
 
-    await axios.get(`https://api.movidesk.com/public/v1/persons?token=${process.env.MOVIDESK_TOKEN}&$filter=personType eq 1`)
-    .then(response => {
-        return res.status(200).send({total: response.data.length,data: response.data})
+    // usersCycle.find()
+    // .then(async users => {
+
+    //     await users.forEach(async user => {
+            
+    //         const connections = (user.connections) ? user.connections.split(",").map(connect => {
+    //             return {
+    //                 "id": ("0000" + connect).slice(-4),
+    //                 "forceChildrenToHaveSomeAgreement": false,
+    //             }
+    //         }) : {}
+    
+    //         await axios.post(`https://api.movidesk.com/public/v1/persons?token=${process.env.MOVIDESK_TOKEN}`,{
+    //             isActive: true,
+    //             personType: 1,
+    //             profileType: 2,
+    //             businessName: user.name,
+    //             id: user.login,
+    //             emails: user.email.map((email) => { return { emailType: 'Profissional', email: email.value, isDefault: email.primary } }),
+    //             relationships: connections
+    //         })
+    //         .then(response => {
+    //             console.log(`Cadastrado: ${user.login}`)
+    //         })
+    //         .catch(error => {
+    //             console.log(`Erro: ${user.login}`)
+    //             console.log(error)
+    //         })
+
+    //     });
+
+    //     return res.status(200).send({total: users.length, users})
+    // })
+
+    // await axios.get(`https://api.movidesk.com/public/v1/persons?token=${process.env.MOVIDESK_TOKEN}&$filter=Emails/any(e: e/email eq 'agenciablackpearl@gmail.com')`)
+    await axios.get(`https://api.movidesk.com/public/v1/persons?token=${process.env.MOVIDESK_TOKEN}&id=anderson.dias`)
+    .then(async response => {
+
+        const result = response.data
+
+        console.log(result.id)
+
+        // await axios.patch(`https://api.movidesk.com/public/v1/persons?token=${process.env.MOVIDESK_TOKEN}&id=${result.id}`,{
+        //     id: result.codeReferenceAdditional
+        // })
+        // .then(async (response) => {
+        //     console.log(response)
+        // })
+        // .catch(error => {
+        //     console.log(error)
+        // })
+
+        return res.status(200).send({total: result.length,data: result})
         console.log(response.data)
     })
     .catch(error => {

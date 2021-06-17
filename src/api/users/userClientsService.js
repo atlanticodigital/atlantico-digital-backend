@@ -123,7 +123,7 @@ const newContact = async (req, res, next) => {
 
             msg.push({
                 category: 'user.new',
-                to: "agenciablackpearl@gmail.com",
+                to: ["agenciablackpearl@gmail.com","minhaexperiencia@atlantico.digital"],
                 templateId: process.env.SENDGRID_TEMPLATE_CONTACT_ALERT,
                 dynamicTemplateData: dynamicData
             })
