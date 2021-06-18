@@ -12,6 +12,10 @@ module.exports = async (req, res, next) => {
         const data = response.data
         var client = data.clients[0]
 
+        if(data.category=="Abertura de Tarefa"||data.category=="Tarefas em Andamento"){
+            return res.status(422).send({error: `Ticket #${Id}: Category forbidden.`})
+        }
+
         if(!client.email&&data.clients[1]){
             client = data.clients[1]
         }
