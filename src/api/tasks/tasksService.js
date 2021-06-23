@@ -326,10 +326,26 @@ const notify = (req, res, next) => {
         function (task,client,docs,type,users,done) {
 
             let recipients = []
+            let mobileRecipents = []
             let msg = [];
             
             users.map(user => { 
                 user.email.map(email => { recipients.push({email: email.value, id: user._id}) } )
+
+                if(user.phone.length > 0){
+                    const phone = user.phone.filter(phone => { return phone.label == "mobile" })
+
+                    if(phone.length > 0){
+
+                        phone.forEach(element => {
+                            mobileRecipents.push({
+                                phone: `55${element.value.replace(/[-.]/g,'').replace(/\(|\)/g,'').replace(" ",'')}`,
+                                name: user.nickname ? user.nickname : user.name
+                            })
+                        });
+
+                    }
+                }
 
                 Notifications.create({
                     client: client._id,
@@ -376,12 +392,42 @@ const notify = (req, res, next) => {
                 })
             });
 
+            if(mobileRecipents.length > 0){
+
+                mobileRecipents.forEach(element => {
+                    
+                    axios.post('https://api.zenvia.com/v2/channels/sms/messages', {
+                        from: process.env.ZENVIA_FROM,
+                        to: element.phone,
+                        contents: [
+                            {
+                            type: "text",
+                            text: `Atlantico Digital: Novos arquivos (#${task.id}) disponiveis para download em sua conta segura. Acesse: https://app.atlantico.digital`
+                            }
+                        ]
+                      }, { headers: {
+                        'X-API-TOKEN': process.env.ZENVIA_TOKEN,
+                        }
+                        })
+                    .then(response => {
+                        console.log(response.data)
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    })
+                    
+                });
+                
+            }
+
             email.send(msg,true)
             .then(
                 response => {
                     if(!response){
+                        console.log(`Tarefa #${task.id} não foi enviada ao cliente!`)
                         done('Ocorreu um erro inesperado e não foi possível realizar a notificação por e-mail para os contatos.')
                     }else{
+                        console.log(`Tarefa #${task.id} enviada ao cliente!`)
                         done(null,task,client,docs,type,users)
                     }
                 }
@@ -405,16 +451,16 @@ const notify = (req, res, next) => {
             }
         }
 
-        // email.send(msg)
-        // .then(
-        //     response => {
-        //         if(!response){
-        //             console.log(`Task #${id} notification error email not sended!`)
-        //         }else{
-        //             console.log(`Task #${id} notification error sended!`)
-        //         }
-        //     }
-        // )    
+        email.send(msg)
+        .then(
+            response => {
+                if(!response){
+                    console.log(`Task #${id} notification error email not sended!`)
+                }else{
+                    console.log(`Task #${id} notification error sended!`)
+                }
+            }
+        )    
 
         return res.status(400).json({ message: err });
     })
