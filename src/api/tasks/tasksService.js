@@ -451,8 +451,8 @@ const notify = (req, res, next) => {
             }
         }
 
-        if(err!=`Tarefa #${id} não possui anexos para notificação!`||err!=`Não é uma tarefa que foi entregue!`){
-
+        if(err!=`Tarefa #${id} não possui anexos para notificação!`&&err!=`Não é uma tarefa que foi entregue!`){
+            
             email.send(msg)
             .then(
                 response => {
