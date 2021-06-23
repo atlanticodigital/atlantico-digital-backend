@@ -451,16 +451,20 @@ const notify = (req, res, next) => {
             }
         }
 
-        email.send(msg)
-        .then(
-            response => {
-                if(!response){
-                    console.log(`Task #${id} notification error email not sended!`)
-                }else{
-                    console.log(`Task #${id} notification error sended!`)
+        if(err!=`Tarefa #${id} não possui anexos para notificação!`||err!=`Não é uma tarefa que foi entregue!`){
+
+            email.send(msg)
+            .then(
+                response => {
+                    if(!response){
+                        console.log(`Task #${id} notification error email not sended!`)
+                    }else{
+                        console.log(`Task #${id} notification error sended!`)
+                    }
                 }
-            }
-        )    
+            )  
+
+        }  
 
         return res.status(400).json({ message: err });
     })
