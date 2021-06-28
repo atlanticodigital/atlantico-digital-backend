@@ -304,7 +304,7 @@ const notify = (req, res, next) => {
                 }else if(type){
                     done(null,task,client,docs,type)
                 }else{
-                    done('Tipo de tarefa não encontrado no Atlântico Digital!')
+                    done(`Tipo de tarefa #${task.type_id} não encontrado no Atlântico Digital!`)
                 }
             })
 
